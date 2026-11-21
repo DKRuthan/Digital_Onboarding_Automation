@@ -66,10 +66,10 @@ const DEFAULT_SHEET_HEADERS = {
 
 const SAMPLE_ACCOUNT = {
   customer_id: "CUST-001",
-  customer_name: "Acme Corporation",
+  customer_name: "Demo Customer 001",
   plan: "Enterprise",
   stage: "Onboarding",
-  owner_dam_email: "alex.rivera@company.com",
+  owner_dam_email: "ash.demo@team.example.com",
   term_start_date: "2026-01-15",
   renewal_date: "2027-01-15",
   invite_sent_date: "2026-01-10",
@@ -237,7 +237,7 @@ function main(): void {
 
   console.log("C. normalizeContactEmail helper...");
   assert(
-    normalizeContactEmail("  Admin@Acme.COM  ") === "admin@acme.com",
+    normalizeContactEmail("  Admin@Customer-001.EXAMPLE.COM  ") === "admin@customer-001.example.com",
     "normalizeContactEmail should trim and lowercase",
   );
   assert(normalizeContactEmail("") === "", "empty email stays empty");
@@ -247,14 +247,14 @@ function main(): void {
   const noSignalsWorkbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(
     noSignalsWorkbook,
-    XLSX.utils.aoa_to_sheet([["customer_id", "customer_name"], ["CUST-001", "Acme"]]),
+    XLSX.utils.aoa_to_sheet([["customer_id", "customer_name"], ["CUST-001", "Demo Customer 001"]]),
     "Accounts",
   );
   XLSX.utils.book_append_sheet(
     noSignalsWorkbook,
     XLSX.utils.aoa_to_sheet([
       ["contact_email", "contact_role", "customer_id"],
-      ["admin@acme.com", "Admin", "CUST-001"],
+      ["admin@customer-001.example.com", "Admin", "CUST-001"],
     ]),
     "Contacts",
   );
@@ -272,7 +272,7 @@ function main(): void {
     accounts: [SAMPLE_ACCOUNT],
     contacts: [
       {
-        contact_email: "admin@acme.com",
+        contact_email: "admin@customer-001.example.com",
         contact_role: "Admin",
         customer_id: "CUST-001",
       },
@@ -298,12 +298,12 @@ function main(): void {
       accounts: [SAMPLE_ACCOUNT],
       contacts: [
         {
-          contact_email: "admin@acme.com",
+          contact_email: "admin@customer-001.example.com",
           contact_role: "Admin",
           customer_id: "CUST-001",
         },
         {
-          contact_email: "Admin@Acme.com",
+          contact_email: "Admin@Customer-001.example.com",
           contact_role: "User",
           customer_id: "CUST-001",
         },
@@ -323,7 +323,7 @@ function main(): void {
       accounts: [SAMPLE_ACCOUNT],
       contacts: [
         {
-          contact_email: "admin@acme.com",
+          contact_email: "admin@customer-001.example.com",
           contact_role: "Owner",
           customer_id: "CUST-001",
         },
@@ -347,14 +347,14 @@ function main(): void {
       accounts: [SAMPLE_ACCOUNT],
       contacts: [
         {
-          contact_email: "admin@acme.com",
+          contact_email: "admin@customer-001.example.com",
           contact_role: "Admin",
           customer_id: "CUST-001",
         },
       ],
       signals: [
         {
-          contact_email: "ghost@acme.com",
+          contact_email: "ghost@customer-001.example.com",
           customer_id: "CUST-001",
           sent_at: "2026-06-01T10:00:00Z",
           template_or_type: "invite-reminder",
@@ -377,14 +377,14 @@ function main(): void {
       accounts: [SAMPLE_ACCOUNT],
       contacts: [
         {
-          contact_email: "admin@acme.com",
+          contact_email: "admin@customer-001.example.com",
           contact_role: "Admin",
           customer_id: "CUST-001",
         },
       ],
       signals: [
         {
-          contact_email: "admin@acme.com",
+          contact_email: "admin@customer-001.example.com",
           customer_id: "CUST-999",
           sent_at: "2026-06-01T10:00:00Z",
           template_or_type: "invite-reminder",
@@ -408,14 +408,14 @@ function main(): void {
       accounts: [SAMPLE_ACCOUNT],
       contacts: [
         {
-          contact_email: "admin@acme.com",
+          contact_email: "admin@customer-001.example.com",
           contact_role: "Admin",
           customer_id: "CUST-001",
         },
       ],
       signals: [
         {
-          contact_email: "admin@acme.com",
+          contact_email: "admin@customer-001.example.com",
           customer_id: "CUST-001",
           sent_at: "2026-06-01T10:00:00Z",
           template_or_type: "a",
@@ -423,7 +423,7 @@ function main(): void {
           status: "Delivered",
         },
         {
-          contact_email: "admin@acme.com",
+          contact_email: "admin@customer-001.example.com",
           customer_id: "CUST-001",
           sent_at: "2026-06-02T10:00:00Z",
           template_or_type: "b",
@@ -442,14 +442,14 @@ function main(): void {
       accounts: [SAMPLE_ACCOUNT],
       contacts: [
         {
-          contact_email: "admin@acme.com",
+          contact_email: "admin@customer-001.example.com",
           contact_role: "Admin",
           customer_id: "CUST-001",
         },
       ],
       signals: [
         {
-          contact_email: "newperson@acme.com",
+          contact_email: "newperson@customer-001.example.com",
           customer_id: "CUST-001",
           sent_at: "2026-06-01T10:00:00Z",
           template_or_type: "invite-reminder",
@@ -502,17 +502,17 @@ function main(): void {
     accounts: [SAMPLE_ACCOUNT],
     contacts: [
       {
-        contact_email: "admin@acme.com",
+        contact_email: "admin@customer-001.example.com",
         contact_role: "Admin",
         customer_id: "CUST-001",
       },
       {
-        contact_email: "  User@Acme.COM ",
+        contact_email: "  User@Customer-001.EXAMPLE.COM ",
         contact_role: "User",
         customer_id: "CUST-001",
       },
       {
-        contact_email: "extra@acme.com",
+        contact_email: "extra@customer-001.example.com",
         contact_role: "CSM",
         customer_id: "CUST-001",
         contact_name: "Extra Person",
@@ -523,12 +523,12 @@ function main(): void {
   const builtContacts = buildImportedContactsFromNormalized(multiContactImport);
   assert(builtContacts.length === 3, "all Contacts sheet rows must be preserved");
   assert(
-    builtContacts[1].contact_email === "user@acme.com",
+    builtContacts[1].contact_email === "user@customer-001.example.com",
     "importedContacts contact_email must be normalized",
   );
   assert(builtContacts[2].do_not_contact === true, "do_not_contact should be boolean");
   assert(
-    builtContacts[2].customer_name === "Acme Corporation",
+    builtContacts[2].customer_name === "Demo Customer 001",
     "customer_name should resolve from Accounts sheet",
   );
   const firstBatch = builtContacts.slice(0, 1);

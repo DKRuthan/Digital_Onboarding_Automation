@@ -18,22 +18,22 @@ assert(
   `expected 2 customers, got ${result.customers.length}`,
 );
 
-const acme = result.customers.find((c) => c.customer_id === "ACCT-001");
-const brightPath = result.customers.find((c) => c.customer_id === "ACCT-002");
+const firstCustomer = result.customers.find((c) => c.customer_id === "ACCT-001");
+const secondCustomer = result.customers.find((c) => c.customer_id === "ACCT-002");
 
-assert(Boolean(acme), "Acme should exist");
-assert(Boolean(brightPath), "BrightPath should exist");
+assert(Boolean(firstCustomer), "Demo Customer 001 should exist");
+assert(Boolean(secondCustomer), "Demo Customer 002 should exist");
 assert(
-  acme!.admin_email === "admin@acme.com",
-  `Acme admin_email mismatch: ${acme!.admin_email}`,
+  firstCustomer!.admin_email === "admin@customer-001.example.com",
+  `Demo Customer 001 admin_email mismatch: ${firstCustomer!.admin_email}`,
 );
 assert(
-  acme!.user_email === "sarah.chen@acme.com",
-  `Acme user_email mismatch: ${acme!.user_email}`,
+  firstCustomer!.user_email === "aster.demo@customer-001.example.com",
+  `Demo Customer 001 user_email mismatch: ${firstCustomer!.user_email}`,
 );
 assert(
-  brightPath!.admin_email === "it-admin@brightpath.io",
-  `BrightPath admin_email mismatch: ${brightPath!.admin_email}`,
+  secondCustomer!.admin_email === "it-admin@customer-002.example.com",
+  `Demo Customer 002 admin_email mismatch: ${secondCustomer!.admin_email}`,
 );
 
 assert(result.importSummary?.format === "option_c", "importSummary format");

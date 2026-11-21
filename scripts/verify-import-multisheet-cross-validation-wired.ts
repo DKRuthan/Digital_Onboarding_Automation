@@ -63,15 +63,15 @@ function buildWorkbook(
 
 const sampleAccount: Record<string, string> = {
   customer_id: "CUST-001",
-  customer_name: "Acme Corporation",
+  customer_name: "Demo Customer 001",
   plan: "Enterprise",
   stage: "Onboarding",
   segment: "Enterprise Security",
   use_case: "Security Operations",
   icp: "Enterprise Security",
-  account_owner: "Sarah Chen",
-  owner_dam_name: "Alex Rivera",
-  owner_dam_email: "alex.rivera@company.com",
+  account_owner: "Aster Demo",
+  owner_dam_name: "Ash Demo",
+  owner_dam_email: "ash.demo@team.example.com",
   onboarding_start_date: "2026-01-15",
   term_start_date: "2026-01-15",
   renewal_date: "2027-01-15",
@@ -152,7 +152,7 @@ const missingAdminResult = validateTargetMultisheetWorkbook(
     [sampleAccount],
     [
       {
-        contact_email: "user@acme.com",
+        contact_email: "user@customer-001.example.com",
         contact_role: "User",
         contact_name: "User Only",
         do_not_contact: "No",
@@ -177,14 +177,14 @@ const duplicateResult = validateTargetMultisheetWorkbook(
     [sampleAccount],
     [
       {
-        contact_email: "admin@acme.com",
+        contact_email: "admin@customer-001.example.com",
         contact_role: "Admin",
         contact_name: "Admin One",
         do_not_contact: "No",
         customer_id: "CUST-001",
       },
       {
-        contact_email: "admin@acme.com",
+        contact_email: "admin@customer-001.example.com",
         contact_role: "Admin",
         contact_name: "Admin Two",
         do_not_contact: "No",
@@ -208,7 +208,7 @@ const dncResult = validateTargetMultisheetWorkbook(
     [sampleAccount],
     [
       {
-        contact_email: "admin@acme.com",
+        contact_email: "admin@customer-001.example.com",
         contact_role: "Admin",
         contact_name: "Admin",
         do_not_contact: "Yes",

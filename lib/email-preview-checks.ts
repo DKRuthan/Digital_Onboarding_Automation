@@ -19,20 +19,20 @@ export function runEmailPreviewIntegrationChecks(): {
 
   const customer = {
     customer_id: "C-001",
-    customer_name: "Acme Corp",
-    account_owner: "Jane Admin",
-    admin_email: "admin@acme.com",
-    user_email: "user@acme.com",
-    owner: "Alex CSM",
+    customer_name: "Demo Customer 001",
+    account_owner: "Willow Demo",
+    admin_email: "admin@customer-001.example.com",
+    user_email: "user@customer-001.example.com",
+    owner: "Ash Demo",
   } as Customer;
 
   const renewalItem = {
     id: "C-001-renewal-risk",
     customer_id: "C-001",
-    customer_name: "Acme Corp",
+    customer_name: "Demo Customer 001",
     issue: "Renewal Risk",
     recommended_action: "Escalate to CSM",
-    recipient: "Alex CSM",
+    recipient: "Ash Demo",
     template: "renewal-risk",
     rule_id: "renewal-risk",
     recipient_type: "CSM",

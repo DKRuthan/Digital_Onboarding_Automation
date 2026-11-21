@@ -164,7 +164,7 @@ Accepts queue item / payload fields needed for routing validation. Returns routi
 {
   "ok": true,
   "deliverToLabel": "DAM alert inbox",
-  "routingReason": "CSM owner \"Morgan Lee\" routed to DAM alert inbox",
+  "routingReason": "CSM owner \"Reed Demo\" routed to DAM alert inbox",
   "subject": "...",
   "body": "..."
 }

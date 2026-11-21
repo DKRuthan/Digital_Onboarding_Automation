@@ -62,10 +62,10 @@ function hasCode(issues: { code: string }[], code: string): boolean {
 
 const SAMPLE_ACCOUNT = {
   customer_id: "CUST-001",
-  customer_name: "Acme Corporation",
+  customer_name: "Demo Customer 001",
   plan: "Enterprise",
   stage: "Onboarding",
-  owner_dam_email: "alex.rivera@company.com",
+  owner_dam_email: "ash.demo@team.example.com",
   term_start_date: "2026-01-15",
   renewal_date: "2027-01-15",
   invite_sent_date: "2026-01-10",
@@ -158,13 +158,13 @@ function main(): void {
     accounts: [SAMPLE_ACCOUNT],
     contacts: [
       {
-        contact_email: "admin@acme.com",
+        contact_email: "admin@customer-001.example.com",
         contact_role: "Admin",
         customer_id: "CUST-001",
         contact_name: "Admin One",
       },
       {
-        contact_email: "newperson@acme.com",
+        contact_email: "newperson@customer-001.example.com",
         contact_role: "User",
         customer_id: "CUST-001",
         contact_name: "New Person",
@@ -173,7 +173,7 @@ function main(): void {
     ],
     signals: [
       {
-        contact_email: "admin@acme.com",
+        contact_email: "admin@customer-001.example.com",
         customer_id: "CUST-001",
         sent_at: "2026-06-01T10:00:00Z",
         template_or_type: "invite",
@@ -186,11 +186,11 @@ function main(): void {
   const afterReplace = replaceImportedContacts(contacts1, modifiedContacts);
   assert(afterReplace.length === 2, "modified workbook has 2 contacts");
   assert(
-    !afterReplace.some((c) => c.contact_email === "user@acme.com"),
+    !afterReplace.some((c) => c.contact_email === "user@customer-001.example.com"),
     "removed template user contact must not remain after replace",
   );
   assert(
-    afterReplace.some((c) => c.contact_email === "newperson@acme.com"),
+    afterReplace.some((c) => c.contact_email === "newperson@customer-001.example.com"),
     "new contact must appear after replace",
   );
   console.log("  OK: modified workbook replaces session contacts");
@@ -200,12 +200,12 @@ function main(): void {
     baseImport({
       accounts: [SAMPLE_ACCOUNT],
       contacts: [
-        { contact_email: "Admin@Acme.com", contact_role: "Admin", customer_id: "CUST-001" },
-        { contact_email: "  admin@acme.com ", contact_role: "User", customer_id: "CUST-001" },
+        { contact_email: "Admin@Customer-001.example.com", contact_role: "Admin", customer_id: "CUST-001" },
+        { contact_email: "  admin@customer-001.example.com ", contact_role: "User", customer_id: "CUST-001" },
       ],
       signals: [
         {
-          contact_email: "admin@acme.com",
+          contact_email: "admin@customer-001.example.com",
           customer_id: "CUST-001",
           sent_at: "2026-06-01T10:00:00Z",
           template_or_type: "a",
@@ -226,14 +226,14 @@ function main(): void {
   const noSignals = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(
     noSignals,
-    XLSX.utils.aoa_to_sheet([["customer_id", "customer_name"], ["CUST-001", "Acme"]]),
+    XLSX.utils.aoa_to_sheet([["customer_id", "customer_name"], ["CUST-001", "Demo Customer 001"]]),
     "Accounts",
   );
   XLSX.utils.book_append_sheet(
     noSignals,
     XLSX.utils.aoa_to_sheet([
       ["contact_email", "contact_role", "customer_id"],
-      ["admin@acme.com", "Admin", "CUST-001"],
+      ["admin@customer-001.example.com", "Admin", "CUST-001"],
     ]),
     "Contacts",
   );
@@ -251,11 +251,11 @@ function main(): void {
     baseImport({
       accounts: [SAMPLE_ACCOUNT],
       contacts: [
-        { contact_email: "admin@acme.com", contact_role: "Admin", customer_id: "CUST-001" },
+        { contact_email: "admin@customer-001.example.com", contact_role: "Admin", customer_id: "CUST-001" },
       ],
       signals: [
         {
-          contact_email: "unknown@acme.com",
+          contact_email: "unknown@customer-001.example.com",
           customer_id: "CUST-001",
           sent_at: "2026-06-01T10:00:00Z",
           template_or_type: "a",
@@ -277,14 +277,14 @@ function main(): void {
     accounts: [SAMPLE_ACCOUNT],
     contacts: [
       {
-        contact_email: "admin@acme.com",
+        contact_email: "admin@customer-001.example.com",
         contact_role: "Champion",
         customer_id: "CUST-001",
       },
     ],
     signals: [
       {
-        contact_email: "admin@acme.com",
+        contact_email: "admin@customer-001.example.com",
         customer_id: "CUST-001",
         sent_at: "2026-06-01T10:00:00Z",
         template_or_type: "a",

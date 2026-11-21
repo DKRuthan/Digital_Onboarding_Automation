@@ -396,7 +396,7 @@ Combine **static string checks** (UI source) + **library behavioral tests** (no 
 | Assert | Method |
 |--------|--------|
 | Duplicate `contact_email` (same email, two rows) → blocker | `validateNormalizedMultisheetImport` fixture |
-| Case-insensitive duplicate (`A@x.com` / `a@x.com`) → blocker | fixture after normalize |
+| Case-insensitive duplicate (`A@example.com` / `a@example.com`) → blocker | fixture after normalize |
 | `normalizeContactEmail` applied in parser output | unit test on `parseTargetMultisheetWorkbook` |
 | Signal unknown `contact_email` → **blocker** (after L-1B) | fixture |
 | Signals do not increase contact count | parse + validate signal-only rows |

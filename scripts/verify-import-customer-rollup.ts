@@ -19,32 +19,32 @@ const { customers, warnings } = rollupNormalizedImportToCustomers(parsed, {
 
 assert(customers.length === 2, `expected 2 customers, got ${customers.length}`);
 
-const acme = customers.find((customer) => customer.customer_id === "CUST-001");
-const brightPath = customers.find((customer) => customer.customer_id === "CUST-002");
+const firstCustomer = customers.find((customer) => customer.customer_id === "ACCT-001");
+const secondCustomer = customers.find((customer) => customer.customer_id === "ACCT-002");
 
-assert(Boolean(acme), "Acme (CUST-001) should exist");
-assert(Boolean(brightPath), "BrightPath (CUST-002) should exist");
-
-assert(
-  acme!.admin_email === "admin@acme.com",
-  `Acme admin_email should be admin@acme.com, got ${acme!.admin_email}`,
-);
-assert(
-  acme!.user_email === "sarah.chen@acme.com",
-  `Acme user_email should be sarah.chen@acme.com, got ${acme!.user_email}`,
-);
-assert(
-  brightPath!.admin_email === "it-admin@brightpath.io",
-  `BrightPath admin_email should be it-admin@brightpath.io, got ${brightPath!.admin_email}`,
-);
+assert(Boolean(firstCustomer), "Demo Customer 001 (ACCT-001) should exist");
+assert(Boolean(secondCustomer), "Demo Customer 002 (ACCT-002) should exist");
 
 assert(
-  acme!.owner === "alex.rivera@company.com",
-  `Acme owner should come from owner_dam_email, got ${acme!.owner}`,
+  firstCustomer!.admin_email === "admin@customer-001.example.com",
+  `Demo Customer 001 admin_email should be admin@customer-001.example.com, got ${firstCustomer!.admin_email}`,
 );
-assert(acme!.last_email_sent === "Usage Summary", "Acme last_email_sent mapped");
-assert(acme!.days_since_start > 0, "Acme days_since_start should be computed");
-assert(acme!.days_to_renewal > 0, "Acme days_to_renewal should be computed");
+assert(
+  firstCustomer!.user_email === "aster.demo@customer-001.example.com",
+  `Demo Customer 001 user_email should be aster.demo@customer-001.example.com, got ${firstCustomer!.user_email}`,
+);
+assert(
+  secondCustomer!.admin_email === "it-admin@customer-002.example.com",
+  `Demo Customer 002 admin_email should be it-admin@customer-002.example.com, got ${secondCustomer!.admin_email}`,
+);
+
+assert(
+  firstCustomer!.owner === "ash.demo@team.example.com",
+  `Demo Customer 001 owner should come from owner_dam_email, got ${firstCustomer!.owner}`,
+);
+assert(firstCustomer!.last_email_sent === "Usage Summary", "Demo Customer 001 last_email_sent mapped");
+assert(firstCustomer!.days_since_start > 0, "Demo Customer 001 days_since_start should be computed");
+assert(firstCustomer!.days_to_renewal > 0, "Demo Customer 001 days_to_renewal should be computed");
 
 if (warnings.length > 0) {
   console.log(`Warnings (${warnings.length}):`);
@@ -57,5 +57,5 @@ if (warnings.length > 0) {
 
 console.log("OK: import customer rollup verification passed");
 console.log(
-  `  customers=${customers.length}, acme=${acme!.customer_name}, brightpath=${brightPath!.customer_name}`,
+  `  customers=${customers.length}, firstCustomer=${firstCustomer!.customer_name}, secondCustomer=${secondCustomer!.customer_name}`,
 );

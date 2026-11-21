@@ -39,10 +39,10 @@ const DEFAULT_SHEET_HEADERS = {
 
 const SAMPLE_ACCOUNT = {
   customer_id: "CUST-001",
-  customer_name: "Acme Corporation",
+  customer_name: "Demo Customer 001",
   plan: "Enterprise",
   stage: "Onboarding",
-  owner_dam_email: "alex.rivera@company.com",
+  owner_dam_email: "ash.demo@team.example.com",
   term_start_date: "2026-01-15",
   renewal_date: "2027-01-15",
   invite_sent_date: "2026-01-10",
@@ -109,7 +109,7 @@ const missingAdminImport = baseImport({
   accounts: [SAMPLE_ACCOUNT],
   contacts: [
     {
-      contact_email: "user@acme.com",
+      contact_email: "user@customer-001.example.com",
       contact_role: "User",
       customer_id: "CUST-001",
       do_not_contact: "No",
@@ -131,13 +131,13 @@ const duplicateImport = baseImport({
   accounts: [SAMPLE_ACCOUNT],
   contacts: [
     {
-      contact_email: "admin@acme.com",
+      contact_email: "admin@customer-001.example.com",
       contact_role: "Admin",
       customer_id: "CUST-001",
       do_not_contact: "No",
     },
     {
-      contact_email: "admin@acme.com",
+      contact_email: "admin@customer-001.example.com",
       contact_role: "Admin",
       customer_id: "CUST-001",
       do_not_contact: "No",
@@ -159,7 +159,7 @@ const dncImport = baseImport({
   accounts: [SAMPLE_ACCOUNT],
   contacts: [
     {
-      contact_email: "admin@acme.com",
+      contact_email: "admin@customer-001.example.com",
       contact_role: "Admin",
       customer_id: "CUST-001",
       do_not_contact: "Yes",
@@ -185,7 +185,7 @@ const badRoleImport = baseImport({
   accounts: [SAMPLE_ACCOUNT],
   contacts: [
     {
-      contact_email: "admin@acme.com",
+      contact_email: "admin@customer-001.example.com",
       contact_role: "Owner",
       customer_id: "CUST-001",
       do_not_contact: "No",
@@ -207,7 +207,7 @@ const orphanSignalImport = baseImport({
   accounts: [SAMPLE_ACCOUNT],
   contacts: [
     {
-      contact_email: "admin@acme.com",
+      contact_email: "admin@customer-001.example.com",
       contact_role: "Admin",
       customer_id: "CUST-001",
       do_not_contact: "No",
@@ -215,7 +215,7 @@ const orphanSignalImport = baseImport({
   ],
   signals: [
     {
-      contact_email: "missing@acme.com",
+      contact_email: "missing@customer-001.example.com",
       customer_id: "CUST-001",
       sent_at: "2026-06-01T10:00:00Z",
       template_or_type: "invite-reminder",
@@ -239,7 +239,7 @@ const repeatSignalImport = baseImport({
   accounts: [SAMPLE_ACCOUNT],
   contacts: [
     {
-      contact_email: "admin@acme.com",
+      contact_email: "admin@customer-001.example.com",
       contact_role: "Admin",
       customer_id: "CUST-001",
       do_not_contact: "No",
@@ -247,7 +247,7 @@ const repeatSignalImport = baseImport({
   ],
   signals: [
     {
-      contact_email: "admin@acme.com",
+      contact_email: "admin@customer-001.example.com",
       customer_id: "CUST-001",
       sent_at: "2026-06-01T10:00:00Z",
       template_or_type: "invite-reminder",
@@ -255,7 +255,7 @@ const repeatSignalImport = baseImport({
       status: "Delivered",
     },
     {
-      contact_email: "admin@acme.com",
+      contact_email: "admin@customer-001.example.com",
       customer_id: "CUST-001",
       sent_at: "2026-06-02T10:00:00Z",
       template_or_type: "welcome",
@@ -274,14 +274,14 @@ console.log("I. Missing Signals sheet...");
 const noSignalsWorkbook = XLSX.utils.book_new();
 XLSX.utils.book_append_sheet(
   noSignalsWorkbook,
-  XLSX.utils.aoa_to_sheet([["customer_id", "customer_name"], ["CUST-001", "Acme"]]),
+  XLSX.utils.aoa_to_sheet([["customer_id", "customer_name"], ["CUST-001", "Demo Customer 001"]]),
   "Accounts",
 );
 XLSX.utils.book_append_sheet(
   noSignalsWorkbook,
   XLSX.utils.aoa_to_sheet([
     ["contact_email", "contact_role", "customer_id"],
-    ["admin@acme.com", "Admin", "CUST-001"],
+    ["admin@customer-001.example.com", "Admin", "CUST-001"],
   ]),
   "Contacts",
 );

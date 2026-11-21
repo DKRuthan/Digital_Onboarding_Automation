@@ -24,8 +24,8 @@ function buildAccountRow(index: number): Record<string, string> {
     use_case: "Security Operations",
     primary_icp: "Enterprise Security",
     account_owner: `Owner ${index + 1}`,
-    owner_dam_name: "Alex Rivera",
-    owner_dam_email: "alex.rivera@company.com",
+    owner_dam_name: "Ash Demo",
+    owner_dam_email: "ash.demo@team.example.com",
     term_start_date: "2026-01-15",
     activation_start_date: "2026-01-15",
     activation_window_end_date: "2026-04-15",
@@ -133,38 +133,38 @@ export function buildRow2SystemImportWorkbook20Accounts(): XLSX.WorkBook {
 export function buildRow2MultisheetWorkbook(): XLSX.WorkBook {
   const accountRows = [
     buildAccountRow(0),
-    { ...buildAccountRow(1), account_id: "ACCT-002", account_name: "BrightPath Analytics" },
+    { ...buildAccountRow(1), account_id: "ACCT-002", account_name: "Demo Customer 002" },
   ];
   accountRows[0]!.account_id = "ACCT-001";
-  accountRows[0]!.account_name = "Acme Corporation";
+  accountRows[0]!.account_name = "Demo Customer 001";
 
   const contactRows = [
     {
       ...buildContactRow(0, "Admin"),
-      contact_email: "admin@acme.com",
-      contact_name: "Sarah Chen",
+      contact_email: "admin@customer-001.example.com",
+      contact_name: "Aster Demo",
       account_id: "ACCT-001",
-      account_name: "Acme Corporation",
+      account_name: "Demo Customer 001",
     },
     {
       ...buildContactRow(0, "User"),
-      contact_email: "sarah.chen@acme.com",
-      contact_name: "Sarah Chen",
+      contact_email: "aster.demo@customer-001.example.com",
+      contact_name: "Aster Demo",
       account_id: "ACCT-001",
-      account_name: "Acme Corporation",
+      account_name: "Demo Customer 001",
     },
     {
       ...buildContactRow(1, "Admin"),
-      contact_email: "it-admin@brightpath.io",
-      contact_name: "James Wilson",
+      contact_email: "it-admin@customer-002.example.com",
+      contact_name: "Birch Demo",
       account_id: "ACCT-002",
-      account_name: "BrightPath Analytics",
+      account_name: "Demo Customer 002",
     },
   ];
 
   const signalRows = [
     {
-      contact_email: "it-admin@brightpath.io",
+      contact_email: "it-admin@customer-002.example.com",
       account_id: "ACCT-002",
       sent_at: "2026-06-01T10:00:00Z",
       template_or_type: "invite-reminder",

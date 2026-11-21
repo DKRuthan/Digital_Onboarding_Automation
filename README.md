@@ -52,8 +52,8 @@ Copy `.env.example` to `.env.local` and configure:
 | `SENDGRID_API_KEY` | Internal sends | SendGrid API key (server-only, never exposed to client) |
 | `SENDGRID_FROM_EMAIL` | Internal + test sends | Verified sender address |
 | `SENDGRID_TEST_TO_EMAIL` | Test preview sends | Inbox for **Send Test** in email preview modal |
-| `SENDGRID_DAM_ALERT_EMAIL` | Internal sends | Inbox for name-based CSM/owner alerts (e.g. `dam-team@company.com`) |
-| `SENDGRID_INTERNAL_EMAIL_DOMAIN` | Internal sends | Approved internal domain, must start with `@` (e.g. `@company.com`) |
+| `SENDGRID_DAM_ALERT_EMAIL` | Internal sends | Inbox for name-based CSM/owner alerts (e.g. `dam-team@team.example.com`) |
+| `SENDGRID_INTERNAL_EMAIL_DOMAIN` | Internal sends | Approved internal domain, must start with `@` (e.g. `@team.example.com`) |
 | `SENDGRID_INTERNAL_SEND_MODE` | Internal sends | `dry_run` (default) or `live` |
 | `INTERNAL_SEND_API_ENABLED` | Internal send API gate | `false` (default) — set `true` to allow `POST /api/send-approved-internal` |
 | `SENDGRID_TEST_SEND_ENABLED` | Test send API gate | `false` (default) — set `true` to allow `POST /api/send-test-email` |
@@ -196,7 +196,7 @@ Each template has a unique **key** (slug) such as `invite-reminder`. Keys must b
 
 Senders are chosen from a controlled list (no arbitrary sender emails in MVP):
 
-- Maltego Team
+- Demo Onboarding Team
 - Customer Success
 - Digital Onboarding
 - CSM Owner (dynamic — uses account owner email at send time, not a fixed address)

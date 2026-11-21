@@ -72,15 +72,15 @@ function buildRow2DupEmailWorkbook(): XLSX.WorkBook {
   const accounts = [
     {
       account_id: "ACCT-001",
-      account_name: "Acme Corporation",
+      account_name: "Demo Customer 001",
       plan: "Enterprise",
       journey_stage: "Onboarding",
       segment: "Enterprise Security",
       use_case: "Security Operations",
       primary_icp: "Enterprise Security",
-      account_owner: "Sarah Chen",
-      owner_dam_name: "Alex Rivera",
-      owner_dam_email: "alex.rivera@company.com",
+      account_owner: "Aster Demo",
+      owner_dam_name: "Ash Demo",
+      owner_dam_email: "ash.demo@team.example.com",
       term_start_date: "2026-01-15",
       activation_start_date: "2026-01-15",
       activation_window_end_date: "2026-04-15",
@@ -119,22 +119,22 @@ function buildRow2DupEmailWorkbook(): XLSX.WorkBook {
 
   const contacts = [
     {
-      contact_email: "Admin@Acme.com",
+      contact_email: "Admin@Customer-001.example.com",
       contact_role: "Admin",
       contact_name: "Admin One",
       do_not_contact: "No",
       account_id: "ACCT-001",
-      account_name: "Acme Corporation",
+      account_name: "Demo Customer 001",
       customer_type: "Customer",
       customer_first_name: "Admin",
     },
     {
-      contact_email: "  admin@acme.com ",
+      contact_email: "  admin@customer-001.example.com ",
       contact_role: "User",
       contact_name: "Admin Two",
       do_not_contact: "No",
       account_id: "ACCT-001",
-      account_name: "Acme Corporation",
+      account_name: "Demo Customer 001",
       customer_type: "Customer",
       customer_first_name: "Admin",
     },
@@ -142,7 +142,7 @@ function buildRow2DupEmailWorkbook(): XLSX.WorkBook {
 
   const signals = [
     {
-      contact_email: "admin@acme.com",
+      contact_email: "admin@customer-001.example.com",
       account_id: "ACCT-001",
       sent_at: "2026-06-01T10:00:00Z",
       template_or_type: "welcome",
@@ -189,7 +189,7 @@ function buildMixedLayoutWorkbook(): XLSX.WorkBook {
     row2SheetFromRows(
       ROW2_ACCOUNTS_COLUMNS,
       ROW2_DISPLAY_LABELS.accounts,
-      [{ account_id: "ACCT-001", account_name: "Acme" }],
+      [{ account_id: "ACCT-001", account_name: "Demo Customer 001" }],
     ),
     "Accounts",
   );
@@ -197,7 +197,7 @@ function buildMixedLayoutWorkbook(): XLSX.WorkBook {
     workbook,
     XLSX.utils.aoa_to_sheet([
       ["contact_email", "contact_role", "customer_id"],
-      ["admin@acme.com", "Admin", "CUST-001"],
+      ["admin@customer-001.example.com", "Admin", "CUST-001"],
     ]),
     "Contacts",
   );
@@ -208,7 +208,7 @@ function buildMixedLayoutWorkbook(): XLSX.WorkBook {
       ROW2_DISPLAY_LABELS.signals,
       [
         {
-          contact_email: "admin@acme.com",
+          contact_email: "admin@customer-001.example.com",
           account_id: "ACCT-001",
           sent_at: "2026-06-01",
           template_or_type: "welcome",
@@ -301,7 +301,7 @@ function main(): void {
     "Field Guide in workbook but not parsed as extra account rows",
   );
   assert(
-    parsed.accounts[0]?.customer_name === "Acme Corporation",
+    parsed.accounts[0]?.customer_name === "Demo Customer 001",
     "Row 1 labels must not be used as data",
   );
   for (const key of ROW2_ACCOUNTS_COLUMNS) {
@@ -313,14 +313,14 @@ function main(): void {
   console.log("  OK: Field Guide ignored; Row 2 keys used; data from Row 3");
 
   console.log("3. account_id and field mappings...");
-  const acmeAccount = parsed.accounts.find((a) => a.customer_id === "ACCT-001");
-  assert(Boolean(acmeAccount), "ACCT-001 account must exist");
-  assert(acmeAccount!.customer_name === "Acme Corporation", "account_name mapping");
-  assert(acmeAccount!.stage === "Onboarding", "journey_stage -> stage");
-  assert(acmeAccount!.icp === "Enterprise Security", "primary_icp -> icp");
-  assert(acmeAccount!.seats_total === "50", "seats_purchased -> seats_total");
-  assert(acmeAccount!.usage_sessions === "320", "total_sessions -> usage_sessions");
-  assert(acmeAccount!.active_users === "38", "total_active_seats -> active_users");
+  const firstAccount = parsed.accounts.find((a) => a.customer_id === "ACCT-001");
+  assert(Boolean(firstAccount), "ACCT-001 account must exist");
+  assert(firstAccount!.customer_name === "Demo Customer 001", "account_name mapping");
+  assert(firstAccount!.stage === "Onboarding", "journey_stage -> stage");
+  assert(firstAccount!.icp === "Enterprise Security", "primary_icp -> icp");
+  assert(firstAccount!.seats_total === "50", "seats_purchased -> seats_total");
+  assert(firstAccount!.usage_sessions === "320", "total_sessions -> usage_sessions");
+  assert(firstAccount!.active_users === "38", "total_active_seats -> active_users");
 
   const accountIds = new Set(parsed.accounts.map((a) => a.customer_id));
   for (const contact of parsed.contacts) {
@@ -373,22 +373,22 @@ function main(): void {
   const modifiedMatrix = sheetMatrix(modifiedContactsSheet);
   modifiedMatrix.splice(2);
   modifiedMatrix.push([
-    "admin@acme.com",
+    "admin@customer-001.example.com",
     "Admin",
-    "Sarah Chen",
+    "Aster Demo",
     "No",
     "ACCT-001",
-    "Acme Corporation",
+    "Demo Customer 001",
     "Customer",
-    "Sarah",
+    "Aster",
   ]);
   modifiedMatrix.push([
-    "newperson@acme.com",
+    "newperson@customer-001.example.com",
     "User",
     "New Person",
     "Yes",
     "ACCT-001",
-    "Acme Corporation",
+    "Demo Customer 001",
     "Customer",
     "New",
   ]);
@@ -400,11 +400,11 @@ function main(): void {
   const afterReplace = replaceImportedContacts(contacts1, modifiedContacts);
   assert(afterReplace.length === 2, "modified workbook has 2 contacts");
   assert(
-    !afterReplace.some((c) => c.contact_email === "sarah.chen@acme.com"),
+    !afterReplace.some((c) => c.contact_email === "aster.demo@customer-001.example.com"),
     "removed contact must not remain",
   );
   assert(
-    afterReplace.some((c) => c.contact_email === "newperson@acme.com"),
+    afterReplace.some((c) => c.contact_email === "newperson@customer-001.example.com"),
     "new contact must appear",
   );
   console.log("  OK: modified Row 2 workbook replaces session contacts");
@@ -416,7 +416,7 @@ function main(): void {
     XLSX.utils.aoa_to_sheet([
       ["Account ID", "Account Name"],
       ["", ""],
-      ["ACCT-001", "Acme"],
+      ["ACCT-001", "Demo Customer 001"],
     ]),
     "Accounts",
   );
@@ -427,7 +427,7 @@ function main(): void {
       ROW2_DISPLAY_LABELS.contacts,
       [
         {
-          contact_email: "admin@acme.com",
+          contact_email: "admin@customer-001.example.com",
           contact_role: "Admin",
           account_id: "ACCT-001",
         },
@@ -522,7 +522,7 @@ function main(): void {
     row2SheetFromRows(
       ROW2_ACCOUNTS_COLUMNS,
       ROW2_DISPLAY_LABELS.accounts,
-      [{ account_id: "ACCT-001", account_name: "Acme" }],
+      [{ account_id: "ACCT-001", account_name: "Demo Customer 001" }],
     ),
     "Accounts",
   );
@@ -533,7 +533,7 @@ function main(): void {
       ROW2_DISPLAY_LABELS.contacts,
       [
         {
-          contact_email: "admin@acme.com",
+          contact_email: "admin@customer-001.example.com",
           contact_role: "Admin",
           account_id: "ACCT-001",
         },
@@ -559,7 +559,7 @@ function main(): void {
     contacts: parsed.contacts.filter((c) => c.customer_id === "ACCT-001").slice(0, 1),
     signals: [
       {
-        contact_email: "missing@acme.com",
+        contact_email: "missing@customer-001.example.com",
         customer_id: "ACCT-001",
         sent_at: "2026-06-01T10:00:00Z",
         template_or_type: "welcome",
@@ -567,7 +567,7 @@ function main(): void {
         status: "Delivered",
       },
       {
-        contact_email: "admin@acme.com",
+        contact_email: "admin@customer-001.example.com",
         customer_id: "ACCT-999",
         sent_at: "2026-06-01T10:00:00Z",
         template_or_type: "welcome",
@@ -602,14 +602,14 @@ function main(): void {
   const roleWorkbook = buildTargetMultisheetWorkbook();
   const roleMatrix = sheetMatrix(roleWorkbook.Sheets.Contacts!);
   roleMatrix[2] = [
-    "admin@acme.com",
+    "admin@customer-001.example.com",
     "Champion",
-    "Sarah Chen",
+    "Aster Demo",
     "No",
     "ACCT-001",
-    "Acme Corporation",
+    "Demo Customer 001",
     "Customer",
-    "Sarah",
+    "Aster",
   ];
   roleWorkbook.Sheets.Contacts = XLSX.utils.aoa_to_sheet(roleMatrix as string[][]);
   const roleResult = validateTargetMultisheetWorkbook(roleWorkbook);

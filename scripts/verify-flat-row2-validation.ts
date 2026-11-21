@@ -48,7 +48,7 @@ function flatWorkbookFromRows(rows: Record<string, string>[]): XLSX.WorkBook {
 function baseFlatRow(overrides: Record<string, string> = {}): Record<string, string> {
   return {
     account_id: "ACCT-001",
-    account_name: "Acme Corporation",
+    account_name: "Demo Customer 001",
     plan: "Enterprise",
     journey_stage: "Onboarding",
     use_case: "Security Operations",
@@ -78,8 +78,8 @@ function baseFlatRow(overrides: Record<string, string> = {}): Record<string, str
     total_sessions_30d: "80",
     active_users_100d: "7",
     total_sessions_100d: "100",
-    contact_email: "admin@acme.com",
-    contact_name: "Sarah Chen",
+    contact_email: "admin@customer-001.example.com",
+    contact_name: "Aster Demo",
     contact_role: "Admin",
     do_not_contact: "No",
     invite_status: "Accepted",
@@ -145,8 +145,8 @@ console.log("  OK: 20 accounts / 45 contacts validated");
 // 4. Duplicate contact_email blocker
 console.log("\n[4] Duplicate contact_email blocker");
 const dupWorkbook = flatWorkbookFromRows([
-  baseFlatRow({ contact_email: "dup@test.com", contact_role: "Admin" }),
-  baseFlatRow({ contact_email: "dup@test.com", contact_role: "User" }),
+  baseFlatRow({ contact_email: "dup@test.example.com", contact_role: "Admin" }),
+  baseFlatRow({ contact_email: "dup@test.example.com", contact_role: "User" }),
 ]);
 const dupResult = validateTargetMultisheetWorkbook(dupWorkbook);
 assert(dupResult.passed === false, "duplicate email should fail");
@@ -211,8 +211,8 @@ console.log("  OK: empty contact_role blocked");
 // 9. account_name conflict blocker
 console.log("\n[9] account_name conflict blocker");
 const nameConflictWorkbook = flatWorkbookFromRows([
-  baseFlatRow({ account_name: "Acme Corporation", contact_role: "Admin", contact_email: "a1@test.com" }),
-  baseFlatRow({ account_name: "Wrong Name Inc", contact_role: "User", contact_email: "u1@test.com" }),
+  baseFlatRow({ account_name: "Demo Customer 001", contact_role: "Admin", contact_email: "a1@test.example.com" }),
+  baseFlatRow({ account_name: "Wrong Name Inc", contact_role: "User", contact_email: "u1@test.example.com" }),
 ]);
 const nameConflictResult = validateTargetMultisheetWorkbook(nameConflictWorkbook);
 assert(nameConflictResult.passed === false, "account_name conflict should fail");
@@ -225,8 +225,8 @@ console.log("  OK: account_name conflict blocked");
 // 10. plan conflict warning
 console.log("\n[10] plan conflict warning");
 const planConflictWorkbook = flatWorkbookFromRows([
-  baseFlatRow({ plan: "Enterprise", contact_role: "Admin", contact_email: "a1@test.com" }),
-  baseFlatRow({ plan: "Starter", contact_role: "User", contact_email: "u1@test.com" }),
+  baseFlatRow({ plan: "Enterprise", contact_role: "Admin", contact_email: "a1@test.example.com" }),
+  baseFlatRow({ plan: "Starter", contact_role: "User", contact_email: "u1@test.example.com" }),
 ]);
 const planConflictParsed = parseFlatRow2Workbook(planConflictWorkbook);
 const planConflictValidation = validateNormalizedMultisheetImport(planConflictParsed);
@@ -240,8 +240,8 @@ console.log("  OK: plan conflict is warning only");
 // 11. Missing CSM warning
 console.log("\n[11] Missing CSM contact warning");
 const noCsmWorkbook = flatWorkbookFromRows([
-  baseFlatRow({ contact_role: "Admin", contact_email: "admin@acme.com" }),
-  baseFlatRow({ contact_role: "User", contact_email: "user@acme.com" }),
+  baseFlatRow({ contact_role: "Admin", contact_email: "admin@customer-001.example.com" }),
+  baseFlatRow({ contact_role: "User", contact_email: "user@customer-001.example.com" }),
 ]);
 const noCsmResult = validateTargetMultisheetWorkbook(noCsmWorkbook);
 assert(
@@ -253,8 +253,8 @@ console.log("  OK: missing CSM warning");
 // 12. Missing Admin warning
 console.log("\n[12] Missing Admin contact warning");
 const noAdminWorkbook = flatWorkbookFromRows([
-  baseFlatRow({ contact_role: "User", contact_email: "user@acme.com" }),
-  baseFlatRow({ contact_role: "CSM", contact_email: "csm@company.com" }),
+  baseFlatRow({ contact_role: "User", contact_email: "user@customer-001.example.com" }),
+  baseFlatRow({ contact_role: "CSM", contact_email: "csm@team.example.com" }),
 ]);
 const noAdminResult = validateTargetMultisheetWorkbook(noAdminWorkbook);
 assert(

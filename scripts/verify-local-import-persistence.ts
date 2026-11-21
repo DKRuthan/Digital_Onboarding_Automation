@@ -32,8 +32,8 @@ const sampleCustomer: Customer = {
   customer_id: "CUST-TEST-001",
   customer_name: "Test Corp",
   account_owner: "Owner",
-  admin_email: "admin@test.com",
-  user_email: "user@test.com",
+  admin_email: "admin@test.example.com",
+  user_email: "user@test.example.com",
   role: "Admin",
   plan: "Enterprise",
   engagement_model: "High Touch",
@@ -71,7 +71,7 @@ const sampleCustomer: Customer = {
 };
 
 const sampleContact: ImportedContact = {
-  contact_email: "admin@test.com",
+  contact_email: "admin@test.example.com",
   contact_role: "Admin",
   customer_id: "CUST-TEST-001",
   do_not_contact: false,

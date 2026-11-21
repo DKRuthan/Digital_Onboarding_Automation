@@ -142,15 +142,15 @@ One row per `customer_id`. No embedded `admin_email` / `user_email` when using f
 | Column | Required | Type | Example |
 |--------|----------|------|---------|
 | `customer_id` | Yes | string | `CUST-001` |
-| `customer_name` | Yes | string | `Acme Corporation` |
+| `customer_name` | Yes | string | `Demo Customer 001` |
 | `plan` | Yes | string | `Enterprise` |
 | `stage` | Yes | string | `Onboarding` |
 | `segment` | Optional | string | `Enterprise Security` |
 | `use_case` | Optional | string | `Security Operations` |
 | `icp` | Optional | string | `Enterprise Security` |
-| `account_owner` | Recommended | string | `Sarah Chen` |
-| `owner_dam_name` | Recommended | string | `Alex Rivera` |
-| `owner_dam_email` | Recommended | email | `alex.rivera@company.com` |
+| `account_owner` | Recommended | string | `Aster Demo` |
+| `owner_dam_name` | Recommended | string | `Ash Demo` |
+| `owner_dam_email` | Recommended | email | `ash.demo@team.example.com` |
 | `onboarding_start_date` | Optional | date | `2026-01-15` |
 | `term_start_date` | Yes | date | `2026-01-15` |
 | `renewal_date` | Yes | date | `2027-01-15` |
@@ -191,9 +191,9 @@ One row per **`contact_email`**. Primary operational table.
 
 | Column | Required | Type | Allowed values | Example |
 |--------|----------|------|----------------|---------|
-| `contact_email` | Yes | email | Valid email | `admin@acme.com` |
+| `contact_email` | Yes | email | Valid email | `admin@customer-001.example.com` |
 | `contact_role` | Yes | enum | `Admin`, `User`, `CSM` | `Admin` |
-| `contact_name` | Recommended | string | — | `Sarah Chen` |
+| `contact_name` | Recommended | string | — | `Aster Demo` |
 | `do_not_contact` | Optional | enum | `Yes`, `No` (default `No`) | `No` |
 | `customer_id` | Yes | string | Must exist on Accounts | `CUST-001` |
 
@@ -207,7 +207,7 @@ One row per communication or signal event. Not required for MVP import.
 
 | Column | Required | Type | Example |
 |--------|----------|------|---------|
-| `contact_email` | Yes | email | `it-admin@brightpath.io` |
+| `contact_email` | Yes | email | `it-admin@customer-002.example.com` |
 | `customer_id` | Yes | string | `CUST-002` |
 | `sent_at` | Yes | datetime | `2026-06-17T14:32:00Z` |
 | `template_or_type` | Recommended | string | `invite-reminder` |
@@ -225,15 +225,15 @@ Full reference for Option C columns. Option A legacy names shown where they diff
 | Column | Sheet | Req | Type | Enum / format | Example | Notes |
 |--------|-------|-----|------|---------------|---------|-------|
 | `customer_id` | Accounts | Yes | string | Unique | `CUST-001` | FK target for Contacts |
-| `customer_name` | Accounts | Yes | string | — | `Acme Corporation` | Display |
+| `customer_name` | Accounts | Yes | string | — | `Demo Customer 001` | Display |
 | `plan` | Accounts | Yes | string | — | `Enterprise` | |
 | `stage` | Accounts | Yes | string | — | `Onboarding` | Lifecycle |
 | `segment` | Accounts | Opt | string | — | `Enterprise` | Market / size |
 | `use_case` | Accounts | Opt | string | — | `Security Operations` | |
 | `icp` | Accounts | Opt | string | — | `Enterprise Security` | |
-| `account_owner` | Accounts | Rec | string | — | `Sarah Chen` | Primary admin name |
-| `owner_dam_name` | Accounts | Rec | string | — | `Alex Rivera` | Replaces legacy `owner` when name |
-| `owner_dam_email` | Accounts | Rec | email | — | `alex.rivera@company.com` | Internal routing |
+| `account_owner` | Accounts | Rec | string | — | `Aster Demo` | Primary admin name |
+| `owner_dam_name` | Accounts | Rec | string | — | `Ash Demo` | Replaces legacy `owner` when name |
+| `owner_dam_email` | Accounts | Rec | email | — | `ash.demo@team.example.com` | Internal routing |
 | `onboarding_start_date` | Accounts | Opt | date | ISO | `2026-01-15` | Journey anchor |
 | `term_start_date` | Accounts | Yes | date | ISO | `2026-01-15` | |
 | `renewal_date` | Accounts | Yes | date | ISO | `2027-01-15` | |
@@ -259,9 +259,9 @@ Full reference for Option C columns. Option A legacy names shown where they diff
 | `emails_sent_count` | Accounts | Opt | number | ≥ 0 | `8` | |
 | `notes` | Accounts | Opt | string | — | Free text | |
 | `next_recommended_action` | Accounts | Opt | string | — | `Schedule QBR` | |
-| `contact_email` | Contacts | Yes | email | — | `admin@acme.com` | **Primary identity** |
+| `contact_email` | Contacts | Yes | email | — | `admin@customer-001.example.com` | **Primary identity** |
 | `contact_role` | Contacts | Yes | enum | Admin, User, CSM | `Admin` | |
-| `contact_name` | Contacts | Rec | string | — | `Sarah Chen` | |
+| `contact_name` | Contacts | Rec | string | — | `Aster Demo` | |
 | `do_not_contact` | Contacts | Opt | enum | Yes, No | `No` | Suppression |
 | `customer_id` | Contacts | Yes | string | FK | `CUST-001` | |
 | `sent_at` | Signals | Yes | datetime | ISO 8601 | `2026-06-17T14:32:00Z` | Future |
@@ -352,22 +352,22 @@ Importing these creates stale data and conflicts with session state (enrollments
 
 | customer_id | customer_name | plan | stage | account_owner | owner_dam_name | owner_dam_email | term_start_date | renewal_date | invite_status | invite_sent_date | usage_sessions | usage_threshold_percent | seats_total | seats_assigned | seat_assignment_percent | academy_visited | webinar_attended | last_email_sent_type | emails_sent_count |
 |-------------|---------------|------|-------|---------------|----------------|-----------------|-----------------|--------------|---------------|------------------|----------------|-------------------------|-------------|----------------|-------------------------|-----------------|------------------|------------------------|-------------------|
-| CUST-001 | Acme Corporation | Enterprise | Onboarding | Sarah Chen | Alex Rivera | alex.rivera@company.com | 2026-01-15 | 2027-01-15 | Accepted | 2026-01-10 | 320 | 76 | 50 | 42 | 84 | Yes | Yes | Usage Summary | 8 |
-| CUST-002 | BrightPath Analytics | Professional | Onboarding | James Wilson | Morgan Lee | morgan.lee@company.com | 2026-06-01 | 2027-06-01 | Pending | 2026-05-28 | 0 | 0 | 25 | 8 | 32 | No | No | Welcome | 2 |
+| CUST-001 | Demo Customer 001 | Enterprise | Onboarding | Aster Demo | Ash Demo | ash.demo@team.example.com | 2026-01-15 | 2027-01-15 | Accepted | 2026-01-10 | 320 | 76 | 50 | 42 | 84 | Yes | Yes | Usage Summary | 8 |
+| CUST-002 | Demo Customer 002 | Professional | Onboarding | Birch Demo | Reed Demo | reed.demo@team.example.com | 2026-06-01 | 2027-06-01 | Pending | 2026-05-28 | 0 | 0 | 25 | 8 | 32 | No | No | Welcome | 2 |
 
 ### Contacts
 
 | contact_email | contact_role | contact_name | do_not_contact | customer_id |
 |---------------|--------------|--------------|----------------|-------------|
-| admin@acme.com | Admin | Sarah Chen | No | CUST-001 |
-| sarah.chen@acme.com | User | Sarah Chen | No | CUST-001 |
-| it-admin@brightpath.io | Admin | James Wilson | No | CUST-002 |
+| admin@customer-001.example.com | Admin | Aster Demo | No | CUST-001 |
+| aster.demo@customer-001.example.com | User | Aster Demo | No | CUST-001 |
+| it-admin@customer-002.example.com | Admin | Birch Demo | No | CUST-002 |
 
 ### Signals (optional example)
 
 | contact_email | customer_id | sent_at | template_or_type | channel | status |
 |---------------|-------------|---------|------------------|---------|--------|
-| it-admin@brightpath.io | CUST-002 | 2026-06-01T10:00:00Z | invite-reminder | email | Delivered |
+| it-admin@customer-002.example.com | CUST-002 | 2026-06-01T10:00:00Z | invite-reminder | email | Delivered |
 
 ---
 

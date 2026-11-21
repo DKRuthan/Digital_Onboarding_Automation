@@ -87,7 +87,7 @@ export function validateSendGridEnv(): SendGridEnvValidation {
     errors.push("SENDGRID_INTERNAL_EMAIL_DOMAIN is missing or empty");
   } else if (!internalEmailDomain.startsWith("@")) {
     errors.push(
-      "SENDGRID_INTERNAL_EMAIL_DOMAIN must start with @ (e.g. @yourcompany.com)",
+      "SENDGRID_INTERNAL_EMAIL_DOMAIN must start with @ (e.g. @team.example.com)",
     );
   }
 

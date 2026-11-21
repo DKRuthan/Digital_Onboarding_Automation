@@ -50,7 +50,7 @@ function buildInvalidRow2WorkbookMissingHeader(): XLSX.WorkBook {
     XLSX.utils.aoa_to_sheet([
       ["Account ID", "Account Name"],
       ["", ""],
-      ["ACCT-001", "Acme"],
+      ["ACCT-001", "Demo Customer 001"],
     ]),
     "Accounts",
   );
@@ -59,7 +59,7 @@ function buildInvalidRow2WorkbookMissingHeader(): XLSX.WorkBook {
     XLSX.utils.aoa_to_sheet([
       ["Contact Email", "Contact Role", "Account ID"],
       ["contact_email", "contact_role", "account_id"],
-      ["admin@acme.com", "Admin", "ACCT-001"],
+      ["admin@customer-001.example.com", "Admin", "ACCT-001"],
     ]),
     "Contacts",
   );
@@ -68,7 +68,7 @@ function buildInvalidRow2WorkbookMissingHeader(): XLSX.WorkBook {
     XLSX.utils.aoa_to_sheet([
       ["Contact Email", "Account ID", "Sent At", "Template Or Type", "Channel", "Status"],
       [...ROW2_SIGNALS_COLUMNS],
-      ["admin@acme.com", "ACCT-001", "2026-06-01", "welcome", "email", "Delivered"],
+      ["admin@customer-001.example.com", "ACCT-001", "2026-06-01", "welcome", "email", "Delivered"],
     ]),
     "Signals",
   );
@@ -137,7 +137,7 @@ assert(
   `account_id should map to customer_id ACCT-001, got ${parsed.accounts[0]?.customer_id}`,
 );
 assert(
-  parsed.accounts[0]?.customer_name === "Acme Corporation",
+  parsed.accounts[0]?.customer_name === "Demo Customer 001",
   `account_name should map to customer_name, got ${parsed.accounts[0]?.customer_name}`,
 );
 assert(
@@ -167,7 +167,7 @@ assert(
 );
 assert(matrix[1]?.[0] === "account_id", "Row 2 should contain system keys");
 assert(
-  parsed.accounts[0]?.customer_name === "Acme Corporation",
+  parsed.accounts[0]?.customer_name === "Demo Customer 001",
   "First data row should be Row 3, not Row 1 labels",
 );
 console.log("  OK: Row 1 ignored, Row 3 is first data row");
@@ -273,7 +273,7 @@ dupMatrix.push([
   "Dup",
   "No",
   "ACCT-001",
-  "Acme Corporation",
+  "Demo Customer 001",
   "Customer",
   "Dup",
 ]);
@@ -283,7 +283,7 @@ dupMatrix.push([
   "Dup Two",
   "No",
   "ACCT-001",
-  "Acme Corporation",
+  "Demo Customer 001",
   "Customer",
   "Dup",
 ]);
@@ -308,7 +308,7 @@ const signalMatrix = XLSX.utils.sheet_to_json<unknown[]>(signalSheet!, {
   defval: "",
 });
 signalMatrix.push([
-  "it-admin@brightpath.io",
+  "it-admin@customer-002.example.com",
   "ACCT-002",
   "2026-06-02T10:00:00Z",
   "welcome",

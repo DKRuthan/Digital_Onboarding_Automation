@@ -82,7 +82,7 @@ function flatWorkbookFromRows(rows: Record<string, string>[]): XLSX.WorkBook {
 function baseFlatRow(overrides: Record<string, string> = {}): Record<string, string> {
   return {
     account_id: "ACCT-001",
-    account_name: "Acme Corporation",
+    account_name: "Demo Customer 001",
     plan: "Enterprise",
     journey_stage: "Onboarding",
     use_case: "Security Operations",
@@ -112,8 +112,8 @@ function baseFlatRow(overrides: Record<string, string> = {}): Record<string, str
     total_sessions_30d: "80",
     active_users_100d: "7",
     total_sessions_100d: "100",
-    contact_email: "admin@acme.com",
-    contact_name: "Sarah Chen",
+    contact_email: "admin@customer-001.example.com",
+    contact_name: "Aster Demo",
     contact_role: "Admin",
     do_not_contact: "No",
     invite_status: "Accepted",
@@ -189,7 +189,7 @@ function main(): void {
   console.log("2. Parsing public template...");
   const parsed = parseImportWorkbook(templateWorkbook);
   assert(parsed.headerMode === "flat_row2", "must parse as flat_row2");
-  assert(parsed.accounts[0]?.customer_name === "Acme Corporation", "Row 1 labels ignored");
+  assert(parsed.accounts[0]?.customer_name === "Demo Customer 001", "Row 1 labels ignored");
   assert(parsed.accounts.length >= 2, "deduped accounts from flat rows");
   assert(parsed.contacts.length >= 4, "one contact per data row");
   assert(parsed.signals.length === 0, "flat import has no signals");
@@ -223,8 +223,8 @@ function main(): void {
   console.log("4. Validation blockers...");
   const dupResult = validateTargetMultisheetWorkbook(
     flatWorkbookFromRows([
-      baseFlatRow({ contact_email: "dup@test.com", contact_role: "Admin" }),
-      baseFlatRow({ contact_email: "dup@test.com", contact_role: "User" }),
+      baseFlatRow({ contact_email: "dup@test.example.com", contact_role: "Admin" }),
+      baseFlatRow({ contact_email: "dup@test.example.com", contact_role: "User" }),
     ]),
   );
   assert(dupResult.passed === false && hasCode(dupResult.importIssues ?? [], "CONTACT_DUPLICATE_EMAIL"), "duplicate email");
@@ -276,8 +276,8 @@ function main(): void {
 
   const nameConflictResult = validateTargetMultisheetWorkbook(
     flatWorkbookFromRows([
-      baseFlatRow({ account_name: "Acme Corporation", contact_email: "a1@test.com", contact_role: "Admin" }),
-      baseFlatRow({ account_name: "Wrong Name Inc", contact_email: "u1@test.com", contact_role: "User" }),
+      baseFlatRow({ account_name: "Demo Customer 001", contact_email: "a1@test.example.com", contact_role: "Admin" }),
+      baseFlatRow({ account_name: "Wrong Name Inc", contact_email: "u1@test.example.com", contact_role: "User" }),
     ]),
   );
   assert(
@@ -290,8 +290,8 @@ function main(): void {
   console.log("5. Validation warnings and info...");
   const planConflictParsed = parseFlatRow2Workbook(
     flatWorkbookFromRows([
-      baseFlatRow({ plan: "Enterprise", contact_email: "a1@test.com", contact_role: "Admin" }),
-      baseFlatRow({ plan: "Starter", contact_email: "u1@test.com", contact_role: "User" }),
+      baseFlatRow({ plan: "Enterprise", contact_email: "a1@test.example.com", contact_role: "Admin" }),
+      baseFlatRow({ plan: "Starter", contact_email: "u1@test.example.com", contact_role: "User" }),
     ]),
   );
   const planConflictValidation = validateNormalizedMultisheetImport(planConflictParsed);
@@ -304,8 +304,8 @@ function main(): void {
   const stageConflictValidation = validateNormalizedMultisheetImport(
     parseFlatRow2Workbook(
       flatWorkbookFromRows([
-        baseFlatRow({ journey_stage: "Onboarding", contact_email: "a1@test.com", contact_role: "Admin" }),
-        baseFlatRow({ journey_stage: "Adoption", contact_email: "u1@test.com", contact_role: "User" }),
+        baseFlatRow({ journey_stage: "Onboarding", contact_email: "a1@test.example.com", contact_role: "Admin" }),
+        baseFlatRow({ journey_stage: "Adoption", contact_email: "u1@test.example.com", contact_role: "User" }),
       ]),
     ),
   );
@@ -317,8 +317,8 @@ function main(): void {
   const dateConflictValidation = validateNormalizedMultisheetImport(
     parseFlatRow2Workbook(
       flatWorkbookFromRows([
-        baseFlatRow({ renewal_date: "2027-01-15", contact_email: "a1@test.com", contact_role: "Admin" }),
-        baseFlatRow({ renewal_date: "2028-01-15", contact_email: "u1@test.com", contact_role: "User" }),
+        baseFlatRow({ renewal_date: "2027-01-15", contact_email: "a1@test.example.com", contact_role: "Admin" }),
+        baseFlatRow({ renewal_date: "2028-01-15", contact_email: "u1@test.example.com", contact_role: "User" }),
       ]),
     ),
   );
@@ -329,16 +329,16 @@ function main(): void {
 
   const noCsmResult = validateTargetMultisheetWorkbook(
     flatWorkbookFromRows([
-      baseFlatRow({ contact_role: "Admin", contact_email: "admin@acme.com" }),
-      baseFlatRow({ contact_role: "User", contact_email: "user@acme.com" }),
+      baseFlatRow({ contact_role: "Admin", contact_email: "admin@customer-001.example.com" }),
+      baseFlatRow({ contact_role: "User", contact_email: "user@customer-001.example.com" }),
     ]),
   );
   assert(hasCode(noCsmResult.importIssues ?? [], "ACCOUNT_MISSING_CSM_CONTACT"), "missing CSM warning");
 
   const noAdminResult = validateTargetMultisheetWorkbook(
     flatWorkbookFromRows([
-      baseFlatRow({ contact_role: "User", contact_email: "user@acme.com" }),
-      baseFlatRow({ contact_role: "CSM", contact_email: "csm@company.com" }),
+      baseFlatRow({ contact_role: "User", contact_email: "user@customer-001.example.com" }),
+      baseFlatRow({ contact_role: "CSM", contact_email: "csm@team.example.com" }),
     ]),
   );
   assert(hasCode(noAdminResult.importIssues ?? [], "ACCOUNT_MISSING_ADMIN_CONTACT"), "missing Admin warning");
@@ -387,16 +387,16 @@ function main(): void {
     const roleCol = modifiedRow2.indexOf("contact_role");
     const nameCol = modifiedRow2.indexOf("contact_name");
     const dncCol = modifiedRow2.indexOf("do_not_contact");
-    if (emailCol >= 0) cells[emailCol] = "admin@acme.com";
+    if (emailCol >= 0) cells[emailCol] = "admin@customer-001.example.com";
     if (roleCol >= 0) cells[roleCol] = "Admin";
-    if (nameCol >= 0) cells[nameCol] = "Sarah Chen";
+    if (nameCol >= 0) cells[nameCol] = "Aster Demo";
     if (dncCol >= 0) cells[dncCol] = "No";
     return cells;
   });
   modifiedData.push(
     FLAT_ROW2_COLUMNS.map((key) => {
       const base = baseFlatRow({
-        contact_email: "newperson@acme.com",
+        contact_email: "newperson@customer-001.example.com",
         contact_name: "New Person",
         contact_role: "User",
         do_not_contact: "Yes",
@@ -413,11 +413,11 @@ function main(): void {
   const afterReplace = replaceImportedContacts(contacts1, modifiedValid.importedContacts ?? []);
   assert(afterReplace.length === 2, "modified flat workbook has 2 contacts");
   assert(
-    !afterReplace.some((c) => c.contact_email === "sarah.chen@acme.com"),
+    !afterReplace.some((c) => c.contact_email === "aster.demo@customer-001.example.com"),
     "removed contact must not remain",
   );
   assert(
-    afterReplace.some((c) => c.contact_email === "newperson@acme.com"),
+    afterReplace.some((c) => c.contact_email === "newperson@customer-001.example.com"),
     "new contact must appear",
   );
   console.log("  OK: modified flat workbook replace semantics");

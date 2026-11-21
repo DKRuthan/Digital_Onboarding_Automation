@@ -100,24 +100,24 @@ console.log("\n[4] account_id deduplication");
 const acct001Rows = smallParsed.accounts.filter((a) => a.customer_id === "ACCT-001");
 assert(acct001Rows.length === 1, "ACCT-001 should dedupe to one account");
 assert(
-  smallParsed.accounts[0]!.customer_name === "Acme Corporation",
+  smallParsed.accounts[0]!.customer_name === "Demo Customer 001",
   "first account row wins for account_name",
 );
 console.log("  OK: repeated account_id deduped; first row wins");
 
 // 5. Field mappings
 console.log("\n[5] Field mappings");
-const acme = smallParsed.accounts.find((a) => a.customer_id === "ACCT-001");
-assert(acme?.customer_id === "ACCT-001", "account_id -> customer_id");
-assert(acme?.customer_name === "Acme Corporation", "account_name -> customer_name");
-assert(acme?.stage === "Adoption", "journey_stage -> stage");
-assert(acme?.icp === "Enterprise Security", "primary_icp -> icp");
-assert(acme?.seats_total === "10", "seats_purchased -> seats_total");
-assert(acme?.usage_sessions === "100", "total_sessions -> usage_sessions");
-const adminContact = smallParsed.contacts.find((c) => c.contact_email === "admin@acme.com");
+const firstCustomer = smallParsed.accounts.find((a) => a.customer_id === "ACCT-001");
+assert(firstCustomer?.customer_id === "ACCT-001", "account_id -> customer_id");
+assert(firstCustomer?.customer_name === "Demo Customer 001", "account_name -> customer_name");
+assert(firstCustomer?.stage === "Adoption", "journey_stage -> stage");
+assert(firstCustomer?.icp === "Enterprise Security", "primary_icp -> icp");
+assert(firstCustomer?.seats_total === "10", "seats_purchased -> seats_total");
+assert(firstCustomer?.usage_sessions === "100", "total_sessions -> usage_sessions");
+const adminContact = smallParsed.contacts.find((c) => c.contact_email === "admin@customer-001.example.com");
 assert(Boolean(adminContact), "admin contact present");
 assert(
-  adminContact!.contact_email === normalizeContactEmail("admin@acme.com"),
+  adminContact!.contact_email === normalizeContactEmail("admin@customer-001.example.com"),
   "contact_email normalized",
 );
 assert(adminContact!.customer_id === "ACCT-001", "contact linked to account_id");

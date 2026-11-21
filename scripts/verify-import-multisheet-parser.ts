@@ -31,8 +31,8 @@ assert(
   `first account customer_id should be ACCT-001, got ${parsed.accounts[0]?.customer_id}`,
 );
 assert(
-  parsed.contacts[0]?.contact_email === "admin@acme.com",
-  `first contact contact_email should be admin@acme.com, got ${parsed.contacts[0]?.contact_email}`,
+  parsed.contacts[0]?.contact_email === "admin@customer-001.example.com",
+  `first contact contact_email should be admin@customer-001.example.com, got ${parsed.contacts[0]?.contact_email}`,
 );
 
 console.log("OK: import multisheet parser verification passed");

@@ -10,26 +10,26 @@ import { row2SheetFromRows } from "./import-templates";
 function buildAccountFields(index: number): Record<string, string> {
   const id = `ACCT-${String(index + 1).padStart(3, "0")}`;
   const names = [
-    "Acme Corporation",
-    "BrightPath Analytics",
-    "CloudNine Systems",
-    "Delta Secure",
-    "EdgeWorks Labs",
-    "FinSecure Global",
-    "GreenField Health",
-    "Harbor Logistics",
-    "Ironclad Defense",
-    "Juniper Networks Co",
-    "Kite Energy Partners",
-    "Lumen Data",
-    "Meridian Bio",
-    "Northstar Retail",
-    "Orion Aerospace",
-    "Pioneer Fintech",
-    "Quantum SaaS",
-    "Riverstone Media",
-    "Summit Education",
-    "Titan Manufacturing",
+    "Demo Customer 001",
+    "Demo Customer 002",
+    "Demo Customer 003",
+    "Demo Customer 014",
+    "Demo Customer 005",
+    "Demo Customer 006",
+    "Demo Customer 015",
+    "Demo Customer 016",
+    "Demo Customer 009",
+    "Demo Customer 017",
+    "Demo Customer 011",
+    "Demo Customer 018",
+    "Demo Customer 019",
+    "Demo Customer 020",
+    "Demo Customer 021",
+    "Demo Customer 022",
+    "Demo Customer 023",
+    "Demo Customer 024",
+    "Demo Customer 025",
+    "Demo Customer 026",
   ];
 
   return {
@@ -118,27 +118,27 @@ function appendFieldGuide(workbook: XLSX.WorkBook): void {
 export function buildFlatRow2WorkbookSmall(): XLSX.WorkBook {
   const rows = [
     buildFlatRow(0, {
-      email: "admin@acme.com",
+      email: "admin@customer-001.example.com",
       role: "Admin",
-      name: "Sarah Chen",
+      name: "Aster Demo",
     }),
     buildFlatRow(0, {
-      email: "sarah.chen@acme.com",
+      email: "aster.demo@customer-001.example.com",
       role: "User",
-      name: "Sarah Chen",
+      name: "Aster Demo",
     }),
     buildFlatRow(1, {
-      email: "it-admin@brightpath.io",
+      email: "it-admin@customer-002.example.com",
       role: "Admin",
-      name: "James Wilson",
+      name: "Birch Demo",
     }),
   ];
   rows[0]!.account_id = "ACCT-001";
-  rows[0]!.account_name = "Acme Corporation";
+  rows[0]!.account_name = "Demo Customer 001";
   rows[1]!.account_id = "ACCT-001";
-  rows[1]!.account_name = "Acme Corporation";
+  rows[1]!.account_name = "Demo Customer 001";
   rows[2]!.account_id = "ACCT-002";
-  rows[2]!.account_name = "BrightPath Analytics";
+  rows[2]!.account_name = "Demo Customer 002";
 
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(
@@ -178,9 +178,9 @@ export function buildFlatRow2Workbook20Accounts(): XLSX.WorkBook {
     if (index < 5) {
       rows.push(
         buildFlatRow(index, {
-          email: `csm${index + 1}@company.com`,
+          email: `csm${index + 1}@team.example.com`,
           role: "CSM",
-          name: "Alex Rivera",
+          name: "Ash Demo",
         }),
       );
       rows[rows.length - 1]!.account_id = accountId;
