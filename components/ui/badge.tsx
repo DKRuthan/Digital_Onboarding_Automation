@@ -89,6 +89,7 @@ export function workflowStatusVariant(
       return "danger";
     case "Dry Run Complete":
       return "warning";
+    case "Accepted by SendGrid":
     case "Live Internal Alert Sent":
       return "success";
     default:
@@ -116,6 +117,7 @@ export function logStatusVariant(status: string): BadgeVariant {
       return "muted";
     case "Dry Run Complete":
       return "warning";
+    case "Accepted by SendGrid":
     case "Live Internal Alert Sent":
       return "success";
     case "Simulated Sent":

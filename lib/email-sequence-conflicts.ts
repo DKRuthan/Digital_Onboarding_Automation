@@ -82,7 +82,10 @@ export function checkContactSequenceConflicts(
     };
   }
 
-  const contactLogs = input.send_logs.filter(
+  const sends = input.send_logs.filter(log =>
+    ["Accepted by SendGrid", "Delivered", "Queued", "Bounced", "Simulated Sent"].includes(log.status),
+  );
+  const contactLogs = sends.filter(
     (log) => log.recipient.trim().toLowerCase() === emailNorm,
   );
 
@@ -139,7 +142,7 @@ export function checkContactSequenceConflicts(
   }
 
   if (policy.max_emails_per_account_7_days !== undefined) {
-    const accountLogs7d = input.send_logs.filter((log) => {
+    const accountLogs7d = sends.filter((log) => {
       if (log.customer_name !== input.customer.customer_name) return false;
       const elapsed = daysSince(log.date, now);
       return elapsed !== null && elapsed >= 0 && elapsed <= 7;
@@ -190,7 +193,10 @@ export function checkContactSequencePreviewConflict(
     };
   }
 
-  const contactLogs = input.send_logs.filter(
+  const sends = input.send_logs.filter(log =>
+    ["Accepted by SendGrid", "Delivered", "Queued", "Bounced", "Simulated Sent"].includes(log.status),
+  );
+  const contactLogs = sends.filter(
     (log) => log.recipient.trim().toLowerCase() === emailNorm,
   );
 
@@ -247,7 +253,7 @@ export function checkContactSequencePreviewConflict(
   }
 
   if (policy.max_emails_per_account_7_days !== undefined) {
-    const accountLogs7d = input.send_logs.filter((log) => {
+    const accountLogs7d = sends.filter((log) => {
       if (log.customer_name !== input.customer.customer_name) return false;
       const elapsed = daysSince(log.date, now);
       return elapsed !== null && elapsed >= 0 && elapsed <= 7;

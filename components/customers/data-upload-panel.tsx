@@ -25,7 +25,6 @@ import { gateByPermission } from "@/lib/auth/permission-ui";
 import { recordClientAuditEvent } from "@/lib/audit/client-audit";
 import { buildExcelImportAuditMetadata } from "@/lib/audit/excel-import-audit";
 import { buildLocalImportValidationSummary } from "@/lib/local-import-persistence";
-import { DemoPersistenceCallout } from "@/components/layout/demo-persistence-callout";
 
 type ToastVariant = "info" | "success" | "warning";
 
@@ -346,8 +345,6 @@ export function DataUploadPanel() {
             fallback.
           </p>
         </div>
-
-        <DemoPersistenceCallout />
 
         <p className="text-sm text-amber-800">
           Use Demo Data resets demo customers and local demo configuration for a

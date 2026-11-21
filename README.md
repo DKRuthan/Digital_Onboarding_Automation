@@ -1,6 +1,27 @@
 # Digital Customer Journey Control Center
 
-A Next.js dashboard for customer journey control — mock data, CSV upload, approval workflow, and internal SendGrid alerts.
+A Next.js customer onboarding dashboard for importing contacts, reviewing the action queue, and sending approved emails with your own Twilio SendGrid account.
+
+[Open the hosted dashboard](https://dkruthan-onboarding-demo.richard989061.chatgpt.site). Anyone can explore the dashboard. Sign in to save a private connection under **Email Settings**.
+
+## Run on your computer
+
+Install Node.js 24 LTS and Git. In Terminal:
+
+```bash
+git clone https://github.com/DKRuthan/Digital_Onboarding_Automation.git
+cd Digital_Onboarding_Automation
+npm ci
+npm run local
+```
+
+Open the private link printed by the launcher, including everything after the `#`. In **Email Settings**, add your Twilio SendGrid API key and select or enter a verified From address. A restricted key with **Mail Send** permission is sufficient. Use an address you control. Complete [Single Sender Verification](https://www.twilio.com/docs/sendgrid/ui/sending-email/sender-verification) or authenticate your domain, then [create a restricted API key](https://app.sendgrid.com/settings/api_keys) for this app. Use **Send test to this address** to check the connection. You can save several connections and choose which sender to use.
+
+Import your own contacts through **Customer Data**, approve an eligible item in **Action Queue**, and review its recipient and message before sending. The bundled example contacts are for exploring the interface. Creating a connection, importing a file, or approving an item does not send an email.
+
+The launcher listens on `127.0.0.1`. Each launch creates a private browser sign-in link for the current run. Keys are encrypted in a local SQLite database in `~/.digital-onboarding-automation`, alongside a per-installation encryption key. Keep that folder private and back up both files together. Customer imports live in the browser profile used for the dashboard. Close the app with **Ctrl+C**. Use `npm run local` to reopen it on the same computer.
+
+[Create a SendGrid API key](https://app.sendgrid.com/settings/api_keys) · [Set up a verified sender](https://www.twilio.com/docs/sendgrid/for-developers/sending-email/sender-identity)
 
 ## Documentation
 
@@ -32,26 +53,15 @@ Customer Data shows computed tag chips, data quality badges, a **Data Quality Re
 
 **Import:** Customer Data → **Download Excel Import Template** → upload **`.xlsx`**. The public template is a flat **`Journey Import`** workbook (**Row 1** labels, **Row 2** system keys, **Row 3+** data — one row = account + contact). L-2 multi-sheet and L-1 legacy workbooks still parse as fallback. Validate → preview → apply replaces session customers and `importedContacts`. No emails or Communication Logs created on import. Stable checkpoint: `npx tsx scripts/verify-l-4f-stable.ts`. **I-4B** atomic apply via `sql.transaction()` in `lib/import-persistence/import-persistence-transaction.ts` — disabled by default (`IMPORT_PERSISTENCE_ENABLED=false`); not wired to UI. Live verify: `npx tsx scripts/verify-i-4b-import-persistence-live.ts` (SKIPPED without env). SQL manual apply only. Next: **I-5** API wiring after live verification passes.
 
-## Getting Started
-
-```bash
-npm install
-cp .env.example .env.local
-# Edit .env.local with your values
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000).
-
 ## Environment Variables
 
-Copy `.env.example` to `.env.local` and configure:
+These optional settings apply to operator authentication, audit storage, and legacy internal alerts when running Next.js separately. Use your deployment’s secret store or an untracked `.env.local` file.
 
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `SENDGRID_API_KEY` | Internal sends | SendGrid API key (server-only, never exposed to client) |
 | `SENDGRID_FROM_EMAIL` | Internal + test sends | Verified sender address |
-| `SENDGRID_TEST_TO_EMAIL` | Test preview sends | Inbox for **Send Test** in email preview modal |
+| `SENDGRID_TEST_TO_EMAIL` | Test preview sends | Recipient for the legacy, environment-gated test endpoint |
 | `SENDGRID_DAM_ALERT_EMAIL` | Internal sends | Inbox for name-based CSM/owner alerts (e.g. `dam-team@team.example.com`) |
 | `SENDGRID_INTERNAL_EMAIL_DOMAIN` | Internal sends | Approved internal domain, must start with `@` (e.g. `@team.example.com`) |
 | `SENDGRID_INTERNAL_SEND_MODE` | Internal sends | `dry_run` (default) or `live` |
@@ -79,12 +89,12 @@ Customer `admin_email` and `user_email` are **always rejected** for internal sen
 | Type | What it is | Real email? |
 |------|------------|-------------|
 | **Demo logs** | Fake historical sample data on first load | No — seed data only |
-| **Test send** | **Send Test** in the email preview modal (`POST /api/send-test-email`) | Yes — to `SENDGRID_TEST_TO_EMAIL` only, not the customer |
+| **Test send** | Legacy test endpoint (`POST /api/send-test-email`) | Yes — to `SENDGRID_TEST_TO_EMAIL` only, not the customer |
 | **Dry run** | **Send via SendGrid** when `SENDGRID_INTERNAL_SEND_MODE=dry_run` | No — validates routing only |
 | **Live internal send** | **Send via SendGrid** when mode is `live` | Yes — to DAM/internal recipient only |
-| **Customer email send** | Welcome, getting-started, invite reminders to admin/user | **Not implemented yet** |
+| **Customer email send** | Explicit confirmation on an eligible, approved item with a selected personal SendGrid connection | Yes — to the reviewed recipient |
 
-The sidebar shows live config from `/api/internal-send-config`: SendGrid configured/missing, internal send mode, API gate status, and that customer sends are disabled. Internal routing emails are not exposed to the browser.
+The legacy internal-send configuration endpoint exposes gate state. Personal email connections are managed separately in Email Settings.
 
 **API security (Phase F-2B):** Send routes are env-gated (disabled by default). Public config no longer exposes internal routing emails. Full design: [docs/context/phase-f2b-api-security.md](docs/context/phase-f2b-api-security.md).
 
@@ -157,13 +167,13 @@ Each rule can define **when** a matching action should appear as due in the Acti
 
 Use **Schedule** filters on Action Queue: **Due now**, **Scheduled**, or **All**. **Send via SendGrid** stays disabled for rows scheduled for later (tooltip: *Action is scheduled for later.*).
 
-**Refresh Action Queue**, **Test Trigger**, and scheduled queue items never trigger customer sends. Customer-facing live sends remain **disabled**.
+**Refresh Action Queue**, **Test Trigger**, and scheduled queue items never trigger customer sends. Customer-facing deliveries require a separate, explicit send confirmation with a personal connection.
 
 Trigger changes are saved in **localStorage** in this browser for demo use. Workflow progress and communication logs remain session-only.
 
 **Refresh Action Queue** on Customer Data rebuilds/evaluates the Action Queue from active triggers and current customers. Activity Trigger rows include `contact_email` metadata when admin/user/CSM owner emails are safely resolvable. It does **not** call SendGrid or send customer emails.
 
-Editing triggers, testing triggers, and refreshing the action queue are safe — they only affect the in-memory queue and labels. Customer-facing email sends remain **disabled**.
+Editing triggers, testing triggers, and refreshing the action queue are safe — they only affect the in-memory queue and labels. Send an approved customer email separately from the Action Queue.
 
 ## Email Templates (local browser storage)
 
@@ -194,7 +204,7 @@ Each template has a unique **key** (slug) such as `invite-reminder`. Keys must b
 
 ### Sender selection
 
-Senders are chosen from a controlled list (no arbitrary sender emails in MVP):
+The following labels appear in demo template previews. For a real send, Email Settings supplies the verified From address shown on the confirmation screen.
 
 - Demo Onboarding Team
 - Customer Success
@@ -211,9 +221,9 @@ Unknown variables show a warning in the edit modal. Preview highlights unresolve
 
 ### Test send behavior
 
-**Send Test** from Email Templates or Action Queue preview sends only to `SENDGRID_TEST_TO_EMAIL`. It does **not** send to customer, admin, or user emails. Test sends are logged with mode **test**.
+Template tests use your selected connection and go to its sender address. Choose **Email Settings** to add a key or switch senders.
 
-Creating or editing templates does **not** send email. Customer-facing live sends remain **disabled**. Internal SendGrid alert safety rules are unchanged.
+Creating or editing templates does **not** send email. Customer-facing deliveries require a separate, explicit send confirmation with a personal connection. Internal SendGrid alert safety rules are unchanged.
 
 ### Default templates
 
@@ -244,13 +254,13 @@ The **Email Sequences** page (`/sequences`) lets you manage sequence definitions
 - **Phase 5:** Manual step progression — mark complete, skip, or complete enrollment; updates current step and queue rows
 - Enrollments tab — pause, resume, cancel, exit, preview, export JSON
 - Export JSON · Reset to Defaults (4 built-in demo sequences)
-- **Not wired** to Activity Triggers or customer-facing SendGrid sends
+- Eligible customer steps can be reviewed and explicitly sent from Action Queue.
 
 Enrollment identity: **`contact_email::sequence_key`**, not `account_id` alone.
 
-Active enrollments appear in Action Queue with contact email first, then customer/account context, sequence step, schedule, and conflict status. Customer-facing sequence emails remain **disabled**. Internal alerts follow existing manual SendGrid rules (approved, due_now, conflict-clear).
+Active enrollments appear in Action Queue with contact email first, then customer/account context, sequence step, schedule, and conflict status. Sequence emails require explicit review and confirmation before delivery. Internal alerts follow existing manual SendGrid rules (approved, due_now, conflict-clear).
 
-Sequence step progression is **manual only** — no auto-advance after send or schedule. Customer-facing sequence emails remain **disabled**.
+Sequence step progression is **manual only** — no auto-advance after send or schedule. Sequence emails require explicit review and confirmation before delivery.
 
 ## Exporting session data
 
@@ -329,13 +339,13 @@ Blocked items (duplicate send within 7 days) require **Reset Status** before re-
 ### 6. Test email preview (separate from internal send)
 
 1. Action Queue → select one row → **Preview Selected**
-2. Click **Send Test** — sends to `SENDGRID_TEST_TO_EMAIL` only (never the customer). Communication Logs show mode **Test** with note *Test email sent to SENDGRID_TEST_TO_EMAIL, not to the customer.*
+2. Choose the template test option, review the sender address and confirm the test. For delivery status, open Email Activity in your SendGrid account.
 
 ## Safety
 
 | Rule | Enforced |
 |------|----------|
-| Customer admin/user emails | Rejected |
+| Customer admin/user emails | Use the separate customer-send confirmation for an eligible imported contact. The internal alert endpoint rejects customer recipients. |
 | Unapproved actions | Cannot send |
 | Blocked / skipped actions | Cannot send |
 | Duplicate (< 7 days) | Blocked until reset |

@@ -2,11 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useHydrated } from "@/lib/use-hydrated";
-import {
-  SendGridConfigPanel,
-  SendGridConfigPlaceholder,
-} from "./sendgrid-config-panel";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: DashboardIcon },
@@ -17,6 +12,7 @@ const navItems = [
   { href: "/action-queue", label: "Action Queue", icon: ListIcon },
   { href: "/send-logs", label: "Communication Logs", icon: MailIcon },
   { href: "/reports", label: "Reports", icon: ReportsIcon },
+  { href: "/email-settings", label: "Email Settings", icon: MailIcon },
 ];
 
 export function Sidebar() {
@@ -64,20 +60,8 @@ export function Sidebar() {
           );
         })}
       </nav>
-
-      <div className="hidden border-t border-slate-800 px-4 py-4 lg:block">
-        <SidebarSendGridSection />
-      </div>
     </aside>
   );
-}
-
-function SidebarSendGridSection() {
-  const mounted = useHydrated();
-  if (!mounted) {
-    return <SendGridConfigPlaceholder />;
-  }
-  return <SendGridConfigPanel />;
 }
 
 function DashboardIcon({ className }: { className?: string }) {

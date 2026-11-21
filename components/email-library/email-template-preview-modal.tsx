@@ -1,13 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import type { Customer, EmailTemplate } from "@/lib/types";
 import { renderEmailTemplate } from "@/lib/email-template-engine";
 import { formatSenderDisplay } from "@/lib/email-template-definitions";
-import {
-  isSendTestPayloadComplete,
-  requestSendTestEmail,
-} from "@/lib/send-test-email-client";
+import { useEmailConnections, useSenderTest } from "@/lib/email-connections-client";
+import { useCan } from "@/components/auth/permissions-provider";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { recordClientAuditEvent } from "@/lib/audit/client-audit";
@@ -45,6 +44,10 @@ export function EmailTemplatePreviewModal({
 }: EmailTemplatePreviewModalProps) {
   const [customerId, setCustomerId] = useState(customers[0]?.customer_id ?? "");
   const [sending, setSending] = useState(false);
+  const activeRequest = useRef(false);
+  const { selected, loading } = useEmailConnections();
+  const sendTest = useSenderTest();
+  const canSend = useCan("approve_queue_actions");
   const [error, setError] = useState<string | null>(null);
 
   const customer = useMemo(
@@ -63,26 +66,8 @@ export function EmailTemplatePreviewModal({
       };
 
   async function handleSendTest() {
-    if (!customer) {
-      setError("Select a demo customer to preview variables.");
-      return;
-    }
-
-    const payload = {
-      customer_name: customer.customer_name,
-      issue: "Email Library template test",
-      recommended_action: `Preview template: ${template!.name}`,
-      intended_recipient: customer.admin_email,
-      template_name: template!.key,
-      subject: preview.subject,
-      body: preview.body,
-    };
-
-    if (!isSendTestPayloadComplete(payload)) {
-      setError("Subject and body are required for test send.");
-      return;
-    }
-
+    if (!selected || !canSend || activeRequest.current || !preview.subject || !preview.body) return;
+    activeRequest.current = true;
     setSending(true);
     setError(null);
     recordClientAuditEvent({
@@ -92,29 +77,28 @@ export function EmailTemplatePreviewModal({
       metadata: { template_name: template!.key },
     });
     try {
-      const result = await requestSendTestEmail(payload);
-      if (result.testRecipient) {
-        onTestSent(template!, result.testRecipient);
-      }
+      await sendTest(selected, preview.subject, preview.body);
+      onTestSent(template!, selected.fromEmail);
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to send test email.");
     } finally {
       setSending(false);
+      activeRequest.current = false;
     }
   }
 
   return (
     <Modal
       open={open}
-      onClose={onClose}
+      onClose={() => { if (!activeRequest.current) onClose(); }}
       title={`Preview: ${template.name}`}
       size="xl"
       footer={
         <>
-          <Button variant="outline" disabled={sending} onClick={handleSendTest}>
-            {sending ? "Sending…" : "Send Test"}
-          </Button>
+          {selected && canSend && <Button variant="outline" disabled={sending || !preview.subject || !preview.body} onClick={handleSendTest}>
+            {sending ? "Submitting…" : "Send test to verified sender"}
+          </Button>}
           <Button variant="ghost" onClick={onClose} disabled={sending}>
             Close
           </Button>
@@ -123,8 +107,9 @@ export function EmailTemplatePreviewModal({
     >
       <div className="space-y-5">
         <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          Test email goes only to the configured test inbox
-          (SENDGRID_TEST_TO_EMAIL) — not to customer, admin, or user emails.
+          {loading ? "Loading your sender…" : selected
+            ? `Test recipient: ${selected.fromEmail} (${selected.label}).`
+            : <Link href="/email-settings/" className="font-medium underline">Connect SendGrid in Email Settings to send a template test.</Link>}
         </div>
 
         {error && (
@@ -135,7 +120,7 @@ export function EmailTemplatePreviewModal({
 
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="text-sm text-slate-600">
-            Preview with demo customer
+            Preview with customer
             <select
               className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm"
               value={customer?.customer_id ?? ""}
@@ -149,7 +134,7 @@ export function EmailTemplatePreviewModal({
             </select>
           </label>
           <div className="text-sm text-slate-600">
-            <p className="font-medium text-slate-500">Sender</p>
+            <p className="font-medium text-slate-500">Template sender label</p>
             <p className="mt-1 text-slate-800">{formatSenderDisplay(template)}</p>
           </div>
         </div>

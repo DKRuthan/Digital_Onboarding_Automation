@@ -212,6 +212,7 @@ interface CustomerDataContextValue {
   ) => void;
   resetWorkflowStatus: (actionIds: string[]) => void;
   addWorkflowLog: (log: WorkflowLogInput) => void;
+  recordCustomerMailAccepted: (item: ActionQueueItem, draft: { to: string; subject: string }, requestId: string) => void;
   logInternalSend: (
     item: ActionQueueItem,
     success: boolean,
@@ -406,6 +407,42 @@ export function CustomerDataProvider({
     };
     setSendLogs((prev) => [entry, ...prev]);
   }, []);
+
+  const recordCustomerMailAccepted = useCallback(
+    (item: ActionQueueItem, draft: { to: string; subject: string }, requestId: string) => {
+      setWorkflowStatuses(previous => ({ ...previous, [item.id]: "Accepted by SendGrid" }));
+      const entry: SendLog = {
+        id: `MAIL-${requestId}`,
+        idempotency_key: requestId,
+        date: new Date().toISOString(),
+        customer_name: item.customer_name,
+        customer_id: item.customer_id,
+        issue: item.issue,
+        action: item.recommended_action,
+        recipient: draft.to,
+        contact_email: draft.to,
+        contact_role: item.recipient_type,
+        template: item.template,
+        subject: draft.subject,
+        status: "Accepted by SendGrid",
+        delivery_status: "Accepted",
+        send_mode: "live",
+        provider: "sendgrid",
+        source_type: item.source,
+        action_queue_item_id: item.id,
+        workflow_status_at_send: "Approved",
+        enrollment_id: item.enrollment_id,
+        sequence_key: item.sequence_key,
+        sequence_name: item.sequence_name,
+        sequence_step_number: item.sequence_step_number,
+        sequence_step_name: item.sequence_step_name,
+        note: "SendGrid accepted the email for delivery.",
+        error: "",
+      };
+      setSendLogs(previous => previous.some(log => log.id === entry.id) ? previous : [entry, ...previous]);
+    },
+    [],
+  );
 
   const logInternalSend = useCallback(
     (
@@ -1112,6 +1149,7 @@ export function CustomerDataProvider({
       updateWorkflowStatus,
       resetWorkflowStatus,
       addWorkflowLog,
+      recordCustomerMailAccepted,
       logInternalSend,
       createSimulatedCommunicationLogs,
     }),
@@ -1165,6 +1203,7 @@ export function CustomerDataProvider({
       updateWorkflowStatus,
       resetWorkflowStatus,
       addWorkflowLog,
+      recordCustomerMailAccepted,
       logInternalSend,
       createSimulatedCommunicationLogs,
     ],

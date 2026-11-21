@@ -214,7 +214,7 @@ function EmailTemplateEditForm({
               ))}
             </select>
           </Field>
-          <Field label="Sender">
+          <Field label="Template sender label">
             <select
               className={inputClass}
               value={currentSenderId()}
@@ -227,18 +227,19 @@ function EmailTemplateEditForm({
               ))}
             </select>
           </Field>
-          <Field label="Reply-to email">
+          <Field label="Template reply-to">
             <input
               className={inputClass}
               value={draft.reply_to_email}
               onChange={(e) => updateDraft({ reply_to_email: e.target.value })}
               placeholder={
                 currentSenderId() === "csm-owner"
-                  ? "Uses CSM email at send time"
+                  ? "CSM contact address"
                   : "reply@example.com"
               }
             />
           </Field>
+          <p className="text-xs text-slate-600 sm:col-span-2">Connected sends use the verified address in Email Settings for sending and replies.</p>
           <Field label="Subject" fullWidth>
             <input
               className={inputClass}

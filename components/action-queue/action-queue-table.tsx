@@ -42,6 +42,8 @@ import { InternalSendConfirmModal } from "./internal-send-confirm-modal";
 import { Badge, scheduleStatusVariant, workflowStatusVariant } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Toast } from "@/components/ui/toast";
+import { reviewCustomerMail } from "@/lib/customer-mail-action";
+import { CustomerMailConfirm } from "./customer-mail-confirm";
 import { EmailPreviewModal } from "./email-preview-modal";
 
 const ALL = "All";
@@ -62,6 +64,10 @@ export function ActionQueueTable({ items }: ActionQueueTableProps) {
     customers,
     automationRules,
     emailTemplates,
+    isCustomerDataHydrated,
+    importedContacts,
+    dataSource,
+    sendLogs,
     workflowSummary,
     updateWorkflowStatus,
     resetWorkflowStatus,
@@ -75,6 +81,7 @@ export function ActionQueueTable({ items }: ActionQueueTableProps) {
   const [message, setMessage] = useState<string | null>(null);
   const [toastVariant, setToastVariant] = useState<"info" | "success" | "warning">("info");
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [customerMailId, setCustomerMailId] = useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [sending, setSending] = useState(false);
   const [issueFilter, setIssueFilter] = useState(ALL);
@@ -87,10 +94,8 @@ export function ActionQueueTable({ items }: ActionQueueTableProps) {
 
   const canApproveQueue = useCan("approve_queue_actions");
   const canSendInternal = useCan("send_internal_alert");
-  const canSendTest = useCan("send_test_email");
   const canExport = useCan("export_reports");
   const approveGate = gateByPermission(canApproveQueue, "approve_queue_actions");
-  const sendTestGate = gateByPermission(canSendTest, "send_test_email");
   const exportGate = gateByPermission(canExport, "export_reports");
 
   const customerMap = useMemo(
@@ -159,6 +164,12 @@ export function ActionQueueTable({ items }: ActionQueueTableProps) {
     ? customerMap.get(previewItem.customer_id) ?? null
     : null;
 
+  const customerMail = previewItem && previewCustomer
+    ? reviewCustomerMail(previewItem, {
+        dataSource, customer: previewCustomer, contacts: importedContacts, templates: emailTemplates, logs: sendLogs,
+      })
+    : null;
+
   const allSelectedApproved =
     selectedItems.length > 0 &&
     selectedItems.every((i) => i.workflow_status === "Approved");
@@ -180,6 +191,7 @@ export function ActionQueueTable({ items }: ActionQueueTableProps) {
     (item) => !isQueueConflictClear(item.conflict_status),
   );
 
+  const internalAlertRouteAvailable = isCustomerDataHydrated && !document.querySelector('meta[name="journey-storage-user"]');
   const canSendViaSendGrid =
     canSendInternal &&
     allSelectedApproved &&
@@ -245,6 +257,10 @@ export function ActionQueueTable({ items }: ActionQueueTableProps) {
   function requireSelection(action: string): string[] | null {
     if (selected.size === 0) {
       showToast(`Select at least one row to ${action}.`, "warning");
+      return null;
+    }
+    if (selectedItems.some(item => item.workflow_status === "Accepted by SendGrid")) {
+      showToast("SendGrid has already accepted a selected action.", "warning");
       return null;
     }
     return [...selected];
@@ -565,25 +581,15 @@ export function ActionQueueTable({ items }: ActionQueueTableProps) {
       );
     });
     if (hasCustomerFacing || sendableItems.length !== selectedItems.length) {
-      return "Customer emails are not enabled yet. Only internal approved alerts can be sent.";
+      return "Choose Review customer email for a customer recipient.";
     }
     return "Send approved internal alerts via SendGrid (dry run or live per config)";
   }
 
   function handleMarkSequenceStepComplete(item: ActionQueueItem) {
     if (!item.enrollment_id) return;
-    const isCustomerFacing = isSequenceCustomerFacingItem(item);
-    const confirmed = window.confirm(
-      isCustomerFacing
-        ? "Demo only: mark this customer-facing step complete? No customer email was sent."
-        : "Mark the current sequence step complete? Manual progression only — nothing sends automatically.",
-    );
-    if (!confirmed) return;
-    const result = completeEnrollmentStep(item.enrollment_id, {
-      notes: isCustomerFacing
-        ? "Demo manual complete — customer send disabled."
-        : undefined,
-    });
+    if (!window.confirm("Mark the current sequence step complete? This advances the sequence without sending an email.")) return;
+    const result = completeEnrollmentStep(item.enrollment_id);
     if (!result.ok) {
       showToast(result.error, "warning");
       return;
@@ -639,6 +645,20 @@ export function ActionQueueTable({ items }: ActionQueueTableProps) {
         onToast={showToast}
       />
 
+      {canApproveQueue && previewItem && customerMailId === previewItem.id && customerMail?.draft && (
+        <CustomerMailConfirm
+          key={customerMailId}
+          item={previewItem}
+          draft={customerMail.draft}
+          onClose={() => setCustomerMailId(null)}
+          onAccepted={() => {
+            setCustomerMailId(null);
+            setSelected(new Set());
+            showToast("SendGrid accepted the email for delivery.", "success");
+          }}
+        />
+      )}
+
       <InternalSendConfirmModal
         key={
           confirmOpen
@@ -656,8 +676,7 @@ export function ActionQueueTable({ items }: ActionQueueTableProps) {
 
       <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
         Sequence step progression is manual. Mark steps complete or skip after
-        review — nothing advances or sends automatically. Internal sends still
-        require approval, due_now, and conflict-clear.
+        review. To send a customer email, approve one due action and choose Review customer email.
       </div>
 
       <div className="flex flex-wrap gap-3">
@@ -721,19 +740,6 @@ export function ActionQueueTable({ items }: ActionQueueTableProps) {
         </Button>
         <Button
           variant="outline"
-          disabled={sendTestGate.disabled || selected.size === 0}
-          title={
-            sendTestGate.title ??
-            (selected.size === 0 ? "Select actions first" : undefined)
-          }
-          onClick={() =>
-            showToast("Open Preview Selected to send a test email.", "info")
-          }
-        >
-          Send Test
-        </Button>
-        <Button
-          variant="outline"
           disabled={approveGate.disabled || selected.size === 0}
           title={
             approveGate.title ??
@@ -777,13 +783,21 @@ export function ActionQueueTable({ items }: ActionQueueTableProps) {
           Reset Status
         </Button>
         <Button
+          variant="primary"
+          disabled={!canApproveQueue || !customerMail?.draft}
+          title={approveGate.title ?? customerMail?.reason ?? "Select one approved customer email"}
+          onClick={() => previewItem && setCustomerMailId(previewItem.id)}
+        >
+          Review customer email
+        </Button>
+        {internalAlertRouteAvailable && <Button
           variant="secondary"
           disabled={!canSendViaSendGrid || sending}
           title={getSendViaSendGridTitle()}
           onClick={handleSendViaSendGrid}
         >
-          Send via SendGrid
-        </Button>
+          Send internal alert
+        </Button>}
         <Button
           variant="outline"
           disabled={!canCreateSimulatedLogs}
@@ -801,6 +815,10 @@ export function ActionQueueTable({ items }: ActionQueueTableProps) {
           Export Action Queue CSV
         </Button>
       </div>
+
+      {previewItem?.channel === "email" && customerMail?.reason && (
+        <p className="text-sm text-slate-600">{customerMail.reason}</p>
+      )}
 
       {message && (
         <Toast
@@ -959,20 +977,9 @@ export function ActionQueueTable({ items }: ActionQueueTableProps) {
                   <Badge variant={workflowStatusVariant(item.workflow_status)}>
                     {item.workflow_status}
                   </Badge>
-                  {isSequenceCustomerFacingItem(item) ? (
-                    <p className="mt-1 text-xs text-slate-500">
-                      Customer emails are not enabled yet.
-                    </p>
-                  ) : internalEligible ? (
+                  {internalEligible && internalAlertRouteAvailable && (
                     <p className="mt-1 text-xs text-emerald-700">
-                      Eligible for internal alert send
-                      {item.schedule_status !== "due_now" && " when due"}
-                    </p>
-                  ) : (
-                    <p className="mt-1 text-xs text-slate-500">
-                      {isSequence && !isQueueConflictClear(item.conflict_status)
-                        ? "Blocked by conflict check"
-                        : "Customer emails are not enabled yet"}
+                      Eligible for internal alert send{item.schedule_status !== "due_now" && " when due"}
                     </p>
                   )}
                 </td>

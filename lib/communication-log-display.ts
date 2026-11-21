@@ -52,6 +52,7 @@ export function isSequenceLog(log: SendLog): boolean {
 }
 
 export function displayLogSource(log: SendLog): CommunicationLogSource {
+  if (log.status === "Accepted by SendGrid") return isSequenceLog(log) ? "Sequence" : "Trigger";
   if (log.status === "Simulated Sent" || log.send_mode === "logged_only") {
     if (isSequenceLog(log)) return "Sequence";
     if (log.issue?.trim() || log.action?.trim()) return "Trigger";
@@ -130,6 +131,7 @@ export function displayLogRecipientType(log: SendLog): string | null {
 
 export function displayLogDeliveryStatus(log: SendLog): string {
   if (log.delivery_status?.trim()) return log.delivery_status.trim();
+  if (log.status === "Accepted by SendGrid") return "Accepted";
   if (log.status === "Simulated Sent" || log.send_mode === "logged_only") {
     return "Not Sent";
   }

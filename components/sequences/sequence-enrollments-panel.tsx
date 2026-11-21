@@ -88,9 +88,8 @@ export function SequenceEnrollmentsPanel({
   return (
     <div className="space-y-4 p-6 lg:p-8">
       <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-        Enrollments are local demo records only. Step progression is manual —
-        mark steps complete or skip after review. No emails send automatically.
-        Customer-facing steps can be marked complete for demo only (no send).
+        Review the current step in the Action Queue. You can mark a step complete
+        or skip it here without sending an email.
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">

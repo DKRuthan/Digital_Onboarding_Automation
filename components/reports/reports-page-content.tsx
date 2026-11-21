@@ -18,12 +18,11 @@ import { CommunicationReportSection } from "./communication-report-section";
 import { SequenceReportSection } from "./sequence-report-section";
 import { AccountContextReportSection } from "./account-context-report-section";
 import { AuditLogsReportSection } from "./audit-logs-report-section";
-import { DemoPersistenceCallout } from "@/components/layout/demo-persistence-callout";
 import { gateByPermission } from "@/lib/auth/permission-ui";
 import { recordClientAuditEvent } from "@/lib/audit/client-audit";
 
 const READ_ONLY_BANNER =
-  "Reports are read-only snapshot/demo reporting — not production BI. This page does not send emails, mutate customer data, change queue statuses, or progress sequences. No customer emails are sent in this demo.";
+  "This report shows the customers, queue, and communication logs currently loaded in this browser.";
 
 export function ReportsPageContent() {
   const {
@@ -110,8 +109,6 @@ export function ReportsPageContent() {
         >
           {READ_ONLY_BANNER}
         </div>
-
-        <DemoPersistenceCallout />
 
         {!isCustomerDataHydrated ? (
           <CustomerDataLoadingShell label="Loading local demo state…" />

@@ -1,3 +1,4 @@
+import { workspaceStorage } from "./browser-workspace-storage";
 import type { Customer, ImportedContact } from "./types";
 import type { ValidationResult } from "./upload-validation";
 
@@ -130,7 +131,7 @@ export function saveLocalActiveImport(input: SaveLocalActiveImportInput): void {
       validationSummary: input.validationSummary ?? null,
     };
 
-    window.localStorage.setItem(
+    workspaceStorage.setItem(
       LOCAL_ACTIVE_IMPORT_STORAGE_KEY,
       JSON.stringify(payload),
     );
@@ -143,7 +144,7 @@ export function loadLocalActiveImport(): LocalActiveImport | null {
   if (typeof window === "undefined") return null;
 
   try {
-    const raw = window.localStorage.getItem(LOCAL_ACTIVE_IMPORT_STORAGE_KEY);
+    const raw = workspaceStorage.getItem(LOCAL_ACTIVE_IMPORT_STORAGE_KEY);
     if (!raw) return null;
 
     const parsed: unknown = JSON.parse(raw);
@@ -159,7 +160,7 @@ export function clearLocalActiveImport(): void {
   if (typeof window === "undefined") return;
 
   try {
-    window.localStorage.removeItem(LOCAL_ACTIVE_IMPORT_STORAGE_KEY);
+    workspaceStorage.removeItem(LOCAL_ACTIVE_IMPORT_STORAGE_KEY);
   } catch {
     // Ignore storage errors.
   }

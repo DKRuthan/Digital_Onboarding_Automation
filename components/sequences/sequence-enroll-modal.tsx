@@ -112,8 +112,8 @@ function SequenceEnrollBody({
   return (
     <div className="space-y-4">
       <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-        Enrollments are local demo records only. They do not create Action Queue
-        items and do not send emails.
+        Enrolling a contact creates a reviewable step in the Action Queue.
+        Sending requires a separate confirmation.
       </div>
 
       <dl className="grid gap-3 sm:grid-cols-2 text-sm">

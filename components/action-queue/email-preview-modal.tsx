@@ -3,18 +3,12 @@
 import { useEffect, useState } from "react";
 import type { ActionQueueItem, Customer } from "@/lib/types";
 import { resolveActionEmailPreview } from "@/lib/email-templates";
-import {
-  isSendTestPayloadComplete,
-  requestSendTestEmail,
-} from "@/lib/send-test-email-client";
 import { formatScheduledForDisplay } from "@/lib/automation-rule-scheduling";
 import {
   formatQueueConflictLabel,
   queueConflictVariant,
 } from "@/lib/email-sequence-queue";
-import { isEligibleInternalRecipient } from "@/lib/internal-send";
 import { isQueueConflictClear } from "@/lib/types";
-import { isCompletedInternalSendStatus } from "@/lib/action-workflow";
 import {
   displayContactEmailLabel,
   displayContactRole,
@@ -55,10 +49,7 @@ export function EmailPreviewModal({
 }: EmailPreviewModalProps) {
   const { updateWorkflowStatus, emailTemplates } = useCustomerData();
   const canApproveQueue = useCan("approve_queue_actions");
-  const canSendTest = useCan("send_test_email");
   const approveGate = gateByPermission(canApproveQueue, "approve_queue_actions");
-  const sendTestGate = gateByPermission(canSendTest, "send_test_email");
-  const [sending, setSending] = useState(false);
   const [checklist, setChecklist] = useState<Record<string, boolean>>({});
 
   function handleClose() {
@@ -67,17 +58,7 @@ export function EmailPreviewModal({
   }
 
   useEffect(() => {
-    if (!open || !item) return;
-    if (item.workflow_status === "Blocked") return;
-    if (
-      item.workflow_status === "Previewed" ||
-      item.workflow_status === "Test Sent" ||
-      item.workflow_status === "Approved" ||
-      item.workflow_status === "Skipped" ||
-      isCompletedInternalSendStatus(item.workflow_status)
-    ) {
-      return;
-    }
+    if (!open || !item || item.workflow_status !== "Needs Review") return;
     updateWorkflowStatus([item.id], "Previewed", "Email preview opened");
     recordClientAuditEvent({
       action: "queue.preview_opened",
@@ -92,10 +73,6 @@ export function EmailPreviewModal({
 
   if (!item || !customer) return null;
 
-  const isCustomerFacing = !isEligibleInternalRecipient(
-    item.recipient,
-    customer,
-  );
   const isSequenceItem = isSequenceRow(item);
   const contactEmailLabel = displayContactEmailLabel(item);
   const contactRole = displayContactRole(item);
@@ -103,55 +80,13 @@ export function EmailPreviewModal({
   const allChecked = CHECKLIST_ITEMS.every((c) => checklist[c.id]);
   const isBlocked = item.workflow_status === "Blocked";
   const canApprove =
-    canApproveQueue && allChecked && !isBlocked && !sending;
+    canApproveQueue && allChecked && ["Previewed", "Test Sent"].includes(item.workflow_status);
 
   function toggleCheck(id: string) {
     setChecklist((prev) => ({ ...prev, [id]: !prev[id] }));
   }
 
   const preview = resolveActionEmailPreview(item, customer, emailTemplates);
-
-  async function handleSendTest() {
-    const payload = {
-      customer_name: item!.customer_name,
-      issue: item!.issue,
-      recommended_action: item!.recommended_action,
-      intended_recipient: item!.recipient,
-      template_name: item!.template,
-      subject: preview.subject,
-      body: preview.body,
-    };
-
-    if (!isSendTestPayloadComplete(payload)) {
-      onToast("Missing required fields for test send.", "warning");
-      return;
-    }
-
-    setSending(true);
-    recordClientAuditEvent({
-      action: "send.test.ui_click",
-      targetType: "action_queue_item",
-      targetId: item!.id,
-      metadata: { template_name: item!.template },
-    });
-    try {
-      const result = await requestSendTestEmail(payload);
-      updateWorkflowStatus(
-        [item!.id],
-        "Test Sent",
-        "Test email sent to configured test inbox",
-        result.testRecipient,
-      );
-      onToast("Test email sent to configured test inbox.", "success");
-    } catch (error) {
-      onToast(
-        error instanceof Error ? error.message : "Failed to send test email.",
-        "warning",
-      );
-    } finally {
-      setSending(false);
-    }
-  }
 
   function handleApprove() {
     if (!item || !canApprove) return;
@@ -173,14 +108,6 @@ export function EmailPreviewModal({
       footer={
         <>
           <Button
-            variant="outline"
-            disabled={sendTestGate.disabled || sending}
-            title={sendTestGate.title}
-            onClick={handleSendTest}
-          >
-            {sending ? "Sending…" : "Send Test"}
-          </Button>
-          <Button
             variant="primary"
             disabled={!canApprove}
             title={
@@ -195,18 +122,13 @@ export function EmailPreviewModal({
           >
             Approve
           </Button>
-          <Button variant="ghost" onClick={handleClose} disabled={sending}>
+          <Button variant="ghost" onClick={handleClose}>
             Cancel
           </Button>
         </>
       }
     >
       <div className="space-y-5">
-        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          Send Test delivers to the configured test inbox (SENDGRID_TEST_TO_EMAIL)
-          only — not to the customer or admin shown below.
-        </div>
-
         {isSequenceItem && (
           <div className="rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-900">
             <p className="font-medium">Sequence enrollment step</p>
@@ -219,13 +141,6 @@ export function EmailPreviewModal({
               {formatScheduledForDisplay(item.scheduled_for)} · Conflict:{" "}
               {formatQueueConflictLabel(item.conflict_status)}
             </p>
-          </div>
-        )}
-
-        {isCustomerFacing && (
-          <div className="rounded-lg border border-slate-300 bg-slate-100 px-4 py-3 text-sm text-slate-800">
-            Customer-facing sending is not enabled yet. Send Test only sends to
-            the configured test inbox.
           </div>
         )}
 
@@ -337,7 +252,7 @@ export function EmailPreviewModal({
             Subject
           </p>
           <p className="mt-1 text-sm font-medium text-slate-900">
-            [TEST] {preview.subject.replace(/^\[TEST\]\s*/i, "")}
+            {preview.subject}
           </p>
         </div>
 

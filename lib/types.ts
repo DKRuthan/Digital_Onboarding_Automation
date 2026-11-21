@@ -250,6 +250,7 @@ export type ActionWorkflowStatus =
   | "Approved"
   | "Skipped"
   | "Blocked"
+  | "Accepted by SendGrid"
   | "Dry Run Complete"
   | "Live Internal Alert Sent";
 
@@ -264,6 +265,7 @@ export type SendLogStatus =
   | "Previewed"
   | "Approved"
   | "Skipped"
+  | "Accepted by SendGrid"
   | "Dry Run Complete"
   | "Live Internal Alert Sent"
   | "Internal Send Failed"

@@ -4,3 +4,8 @@ node_modules/
 .env
 .env.*
 !.env.example
+
+# Local SendGrid vault and SQLite sidecars
+.digital-onboarding-automation/
+vault.key
+email.sqlite*

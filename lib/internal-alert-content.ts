@@ -20,7 +20,7 @@ export function composeInternalAlert(
   const body = [
     "——— INTERNAL DAM ALERT ———",
     `Send mode: ${sendMode === "dry_run" ? "DRY RUN (no email delivered)" : "LIVE"}`,
-    "Customer-facing sends are disabled in this environment.",
+    "This alert is for the operations team.",
     "",
     "——— ALERT DETAILS ———",
     `Customer name: ${payload.customer_name}`,

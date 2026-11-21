@@ -4,11 +4,6 @@ import { useState } from "react";
 import { useCan } from "@/components/auth/permissions-provider";
 import type { EmailTemplate } from "@/lib/types";
 import { useCustomerData } from "@/components/providers/customer-data-provider";
-import { renderEmailTemplate } from "@/lib/email-template-engine";
-import {
-  isSendTestPayloadComplete,
-  requestSendTestEmail,
-} from "@/lib/send-test-email-client";
 import { cloneEmailTemplate, createEmptyEmailTemplate, formatSenderDisplay } from "@/lib/email-template-definitions";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent } from "@/components/ui/card";
@@ -49,14 +44,12 @@ export function EmailLibraryPageContent() {
     null,
   );
   const [creating, setCreating] = useState(false);
-  const [sendingTestId, setSendingTestId] = useState<string | null>(null);
+  const [testNotice, setTestNotice] = useState("");
 
   const approvedCount = emailTemplates.filter((t) => t.status === "approved").length;
   const canEdit = useCan("edit_templates");
-  const canSendTest = useCan("send_test_email");
   const canExport = useCan("export_reports");
   const editGate = gateByPermission(canEdit, "edit_templates");
-  const sendTestGate = gateByPermission(canSendTest, "send_test_email");
   const exportGate = gateByPermission(canExport, "export_reports");
 
   function handleResetToDefaults() {
@@ -108,52 +101,6 @@ export function EmailLibraryPageContent() {
     });
   }
 
-  async function handleSendTest(template: EmailTemplate) {
-    const customer = customers[0];
-    if (!customer) return;
-
-    const confirmed = window.confirm(
-      "Send a test email for this template? It will go only to SENDGRID_TEST_TO_EMAIL, not to any customer email.",
-    );
-    if (!confirmed) return;
-
-    recordClientAuditEvent({
-      action: "send.test.ui_click",
-      targetType: "email_template",
-      targetId: template.id,
-      metadata: { template_name: template.key },
-    });
-
-    const preview = renderEmailTemplate(template, customer);
-    const payload = {
-      customer_name: customer.customer_name,
-      issue: "Email Templates template test",
-      recommended_action: `Test template: ${template.name}`,
-      intended_recipient: customer.admin_email,
-      template_name: template.key,
-      subject: preview.subject,
-      body: preview.body,
-    };
-
-    if (!isSendTestPayloadComplete(payload)) return;
-
-    setSendingTestId(template.id);
-    try {
-      const result = await requestSendTestEmail(payload);
-      addWorkflowLog({
-        customer_name: customer.customer_name,
-        issue: "Template test send",
-        action: `Test send: ${template.name}`,
-        recipient: result.testRecipient ?? "SENDGRID_TEST_TO_EMAIL",
-        template: template.key,
-        status: "Test Sent",
-        send_mode: "test",
-        note: "Test email sent to SENDGRID_TEST_TO_EMAIL from Email Templates.",
-      });
-    } finally {
-      setSendingTestId(null);
-    }
-  }
 
   return (
     <>
@@ -162,11 +109,11 @@ export function EmailLibraryPageContent() {
         description="Create, approve, and manage email templates used by Activity Triggers and Email Sequences. Templates are saved locally in this browser."
       />
 
+      {testNotice && <p role="status" className="bg-emerald-50 px-6 py-3 text-sm text-emerald-800">{testNotice}</p>}
       <div className="flex flex-col gap-3 border-b border-slate-200 bg-white px-6 py-3 sm:flex-row sm:items-center sm:justify-between lg:px-8">
         <p className="text-sm text-slate-600">
           {approvedCount} of {emailTemplates.length} templates approved ·
-          Editing templates does not send emails · Test sends go only to
-          SENDGRID_TEST_TO_EMAIL.
+          Preview a template to send a test to your verified sender address.
         </p>
         <div className="flex flex-wrap gap-2">
           <Button
@@ -235,7 +182,7 @@ export function EmailLibraryPageContent() {
                   <dd className="text-slate-700">{template.type}</dd>
                 </div>
                 <div>
-                  <dt className="font-medium text-slate-400">Sender</dt>
+                  <dt className="font-medium text-slate-400">Template sender</dt>
                   <dd className="text-slate-700">{formatSenderDisplay(template)}</dd>
                 </div>
                 <div>
@@ -304,16 +251,7 @@ export function EmailLibraryPageContent() {
                 >
                   Preview
                 </Button>
-                <Button
-                  variant="outline"
-                  disabled={
-                    sendTestGate.disabled || sendingTestId === template.id
-                  }
-                  title={sendTestGate.title}
-                  onClick={() => handleSendTest(template)}
-                >
-                  {sendingTestId === template.id ? "Sending…" : "Send Test"}
-                </Button>
+
               </div>
             </CardContent>
           </Card>
@@ -348,6 +286,7 @@ export function EmailLibraryPageContent() {
         customers={customers}
         onClose={() => setPreviewTemplate(null)}
         onTestSent={(template, testRecipient) => {
+          setTestNotice(`SendGrid accepted the template test to ${testRecipient}.`);
           addWorkflowLog({
             customer_name: "Email Templates test",
             issue: "Template test send",
@@ -356,7 +295,7 @@ export function EmailLibraryPageContent() {
             template: template.key,
             status: "Test Sent",
             send_mode: "test",
-            note: "Test email sent to SENDGRID_TEST_TO_EMAIL from Email Templates.",
+            note: "SendGrid accepted the template test for the selected sender address.",
           });
         }}
       />

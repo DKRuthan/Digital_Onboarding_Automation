@@ -50,7 +50,7 @@ export function SendLogsPageContent() {
     <>
       <PageHeader
         title="Communication Logs"
-        description="Contact-first history of demo events, simulated logs, test sends, dry runs, live internal alerts, and workflow events. Exports contact-first communication history."
+        description="View and export your communication history, including confirmed SendGrid submissions, tests, and workflow events."
       >
         <Button variant="outline" onClick={handleExport}>
           Export Communication Logs CSV

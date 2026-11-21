@@ -1,3 +1,4 @@
+import { workspaceStorage } from "./browser-workspace-storage";
 import type { EmailTemplate } from "./types";
 import {
   cloneDefaultEmailTemplates,
@@ -37,7 +38,7 @@ export function loadStoredEmailTemplates(): EmailTemplate[] | null {
   if (typeof window === "undefined") return null;
 
   try {
-    const raw = window.localStorage.getItem(EMAIL_TEMPLATES_STORAGE_KEY);
+    const raw = workspaceStorage.getItem(EMAIL_TEMPLATES_STORAGE_KEY);
     if (!raw) return null;
 
     const parsed = JSON.parse(raw) as unknown;
@@ -55,7 +56,7 @@ export function saveStoredEmailTemplates(templates: EmailTemplate[]): void {
 
   try {
     const normalized = templates.map(normalizeStoredTemplate);
-    window.localStorage.setItem(
+    workspaceStorage.setItem(
       EMAIL_TEMPLATES_STORAGE_KEY,
       JSON.stringify(normalized),
     );
@@ -68,7 +69,7 @@ export function clearStoredEmailTemplates(): void {
   if (typeof window === "undefined") return;
 
   try {
-    window.localStorage.removeItem(EMAIL_TEMPLATES_STORAGE_KEY);
+    workspaceStorage.removeItem(EMAIL_TEMPLATES_STORAGE_KEY);
   } catch {
     // Ignore storage errors in demo MVP.
   }

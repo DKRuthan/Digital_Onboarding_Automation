@@ -1,3 +1,4 @@
+import { workspaceStorage } from "./browser-workspace-storage";
 import type { EditableEmailSequence } from "./email-sequence-definitions";
 import {
   cloneDefaultEmailSequences,
@@ -54,7 +55,7 @@ export function loadStoredEmailSequences(): EditableEmailSequence[] | null {
   if (typeof window === "undefined") return null;
 
   try {
-    const raw = window.localStorage.getItem(EMAIL_SEQUENCES_STORAGE_KEY);
+    const raw = workspaceStorage.getItem(EMAIL_SEQUENCES_STORAGE_KEY);
     if (!raw) return null;
 
     const parsed = JSON.parse(raw) as unknown;
@@ -76,7 +77,7 @@ export function saveStoredEmailSequences(
 
   try {
     const normalized = sequences.map(normalizeStoredSequence);
-    window.localStorage.setItem(
+    workspaceStorage.setItem(
       EMAIL_SEQUENCES_STORAGE_KEY,
       JSON.stringify(normalized),
     );
@@ -89,7 +90,7 @@ export function clearStoredEmailSequences(): void {
   if (typeof window === "undefined") return;
 
   try {
-    window.localStorage.removeItem(EMAIL_SEQUENCES_STORAGE_KEY);
+    workspaceStorage.removeItem(EMAIL_SEQUENCES_STORAGE_KEY);
   } catch {
     // Ignore storage errors in demo MVP.
   }

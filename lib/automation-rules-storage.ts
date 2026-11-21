@@ -1,3 +1,4 @@
+import { workspaceStorage } from "./browser-workspace-storage";
 import type { EditableAutomationRule } from "./types";
 import {
   cloneAutomationRule,
@@ -26,7 +27,7 @@ export function loadStoredAutomationRules(): EditableAutomationRule[] | null {
   if (typeof window === "undefined") return null;
 
   try {
-    const raw = window.localStorage.getItem(AUTOMATION_RULES_STORAGE_KEY);
+    const raw = workspaceStorage.getItem(AUTOMATION_RULES_STORAGE_KEY);
     if (!raw) return null;
 
     const parsed = JSON.parse(raw) as unknown;
@@ -49,7 +50,7 @@ export function saveStoredAutomationRules(
 
   try {
     const normalized = rules.map(normalizeAutomationRule);
-    window.localStorage.setItem(
+    workspaceStorage.setItem(
       AUTOMATION_RULES_STORAGE_KEY,
       JSON.stringify(normalized),
     );
@@ -62,7 +63,7 @@ export function clearStoredAutomationRules(): void {
   if (typeof window === "undefined") return;
 
   try {
-    window.localStorage.removeItem(AUTOMATION_RULES_STORAGE_KEY);
+    workspaceStorage.removeItem(AUTOMATION_RULES_STORAGE_KEY);
   } catch {
     // Ignore storage errors in demo MVP.
   }

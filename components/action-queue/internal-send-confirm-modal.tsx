@@ -191,7 +191,7 @@ export function InternalSendConfirmModal({
     >
       <div className="space-y-4">
         <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          Internal/DAM sends only. Customer sends are disabled.
+          These alerts go to the configured internal recipients.
         </div>
 
         {loadingConfig && (

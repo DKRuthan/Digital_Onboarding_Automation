@@ -1,3 +1,4 @@
+import { workspaceStorage } from "./browser-workspace-storage";
 import type { SequenceEnrollment } from "./email-sequence-types";
 import { normalizeCompletedSteps } from "./email-sequence-progression";
 
@@ -33,7 +34,7 @@ export function loadStoredSequenceEnrollments(): SequenceEnrollment[] | null {
   if (typeof window === "undefined") return null;
 
   try {
-    const raw = window.localStorage.getItem(SEQUENCE_ENROLLMENTS_STORAGE_KEY);
+    const raw = workspaceStorage.getItem(SEQUENCE_ENROLLMENTS_STORAGE_KEY);
     if (!raw) return null;
 
     const parsed = JSON.parse(raw) as unknown;
@@ -56,7 +57,7 @@ export function saveStoredSequenceEnrollments(
 
   try {
     const normalized = enrollments.map(normalizeStoredEnrollment);
-    window.localStorage.setItem(
+    workspaceStorage.setItem(
       SEQUENCE_ENROLLMENTS_STORAGE_KEY,
       JSON.stringify(normalized),
     );
@@ -69,7 +70,7 @@ export function clearStoredSequenceEnrollments(): void {
   if (typeof window === "undefined") return;
 
   try {
-    window.localStorage.removeItem(SEQUENCE_ENROLLMENTS_STORAGE_KEY);
+    workspaceStorage.removeItem(SEQUENCE_ENROLLMENTS_STORAGE_KEY);
   } catch {
     // Ignore storage errors in demo MVP.
   }

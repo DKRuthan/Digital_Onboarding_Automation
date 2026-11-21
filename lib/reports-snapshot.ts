@@ -150,7 +150,7 @@ const REPORT_DATA_GAPS = [
   "Import metadata is session-only.",
   "Communication Logs are session/demo based.",
   "Sequence progression is manual/localStorage based.",
-  "Customer SendGrid delivery analytics are not available because customer sends are disabled.",
+  "Use SendGrid Email Activity to check delivery after SendGrid accepts a message.",
   "Trigger fire history is not stored.",
   "No persistent database/reporting history yet.",
 ] as const;

@@ -272,7 +272,7 @@ export function SequencesPageContent() {
     <>
       <PageHeader
         title="Email Sequences"
-        description="Contact/email-level sequences with manual enrollment. Active enrollments create reviewable Action Queue rows for the current step only. Step progression is manual — nothing sends automatically. Customer-facing live sends remain disabled."
+        description="Enroll contacts to create an Action Queue item for the current step. Review and approve each email before sending it from a connected sender."
       />
 
       <div className="border-b border-slate-200 bg-white px-6 lg:px-8">
